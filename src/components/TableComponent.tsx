@@ -1,0 +1,241 @@
+"use client"
+
+import * as React from "react"
+import {
+    ColumnDef,
+    flexRender,
+    getCoreRowModel,
+    getPaginationRowModel,
+    PaginationState,
+    useReactTable,
+} from "@tanstack/react-table"
+import { Button } from "@/components/ui/button"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+
+export type Validator = {
+    validator: string
+    stake: string
+    nextEpochStake: string
+    currentEpochGasPrice: string
+    nextEpochGasPrice: string
+    apy: string
+}
+export default function TableComponent() {
+    const data: Validator[] = React.useMemo(() => [
+        {
+            validator: "0x482fad64...cf3b7684e1",
+            stake: "31,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+        {
+            validator: "0x582fad64...cf3b7684e1",
+            stake: "32,419,413 SUI",
+            nextEpochStake: "31,419,413 SUI",
+            currentEpochGasPrice: "1,000 MIST",
+            nextEpochGasPrice: "1,000 MIST",
+            apy: "0 %",
+        },
+    ], [])
+
+    const columns: ColumnDef<Validator>[] = React.useMemo(() => [
+        {
+            accessorKey: "validator",
+            header: "Validator",
+            cell: ({ row }) => (
+                <div className="lowercase">{row.getValue("validator")}</div>
+            ),
+        },
+        {
+            accessorKey: "stake",
+            header: "Stake",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("stake")}</div>,
+        },
+        {
+            accessorKey: "nextEpochStake",
+            header: "Next Epoch Stake",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("nextEpochStake")}</div>,
+        },
+        {
+            accessorKey: "currentEpochGasPrice",
+            header: "Current Epoch Gas Price",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("currentEpochGasPrice")}</div>,
+        },
+        {
+            accessorKey: "nextEpochGasPrice",
+            header: "Next Epoch Gas Price",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("nextEpochGasPrice")}</div>,
+        },
+        {
+            accessorKey: "apy",
+            header: "APY",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("apy")}</div>,
+        },
+    ], [])
+
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 6,
+    })
+
+    const table = useReactTable({
+        data,
+        columns,
+        debugTable: true,
+        onPaginationChange: setPagination,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        state: {
+            pagination,
+        },
+    })
+
+    return (
+        <div className="my-7 p-7 bg-white rounded-lg shadow-lg">
+            <div className="w-full">
+                <div className="overflow-hidden rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )}
+                                            </TableHead>
+                                        )
+                                    })}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                    >
+                                        {row.getAllCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={columns.length}
+                                        className="h-24 text-center"
+                                    >
+                                        No results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="flex items-center justify-end space-x-2 py-4">
+                    <div className="space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
