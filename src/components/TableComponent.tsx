@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/table"
 import { Validator } from "../app/types/Validator"
 import { useGetLatestSuiSystemState } from "../app/hooks/useGetLatestSuiSystemState"
+import { truncateString } from "@/app/helpers/truncateString"
+import { mistToSui } from "@/app/helpers/suiConversion"
 
 export default function TableComponent() {
     const { validators, isLoading } = useGetLatestSuiSystemState();
@@ -32,7 +34,7 @@ export default function TableComponent() {
             accessorKey: "address",
             header: "Validator",
             cell: ({ row }) => (
-                <div className="lowercase">{row.getValue("address")}</div>
+                <div className="lowercase">{truncateString(row.getValue("address"))}</div>
             ),
         },
         {
@@ -43,7 +45,7 @@ export default function TableComponent() {
         {
             accessorKey: "nextEpochStake",
             header: "Next Epoch Stake",
-            cell: ({ row }) => <div className="capitalize">{row.getValue("nextEpochStake")}</div>,
+            cell: ({ row }) => <div className="capitalize">{Math.round(mistToSui(row.getValue("nextEpochStake"))).toLocaleString()}</div>,
         },
         {
             accessorKey: "currentEpochGasPrice",
@@ -64,7 +66,7 @@ export default function TableComponent() {
 
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
-        pageSize: 6,
+        pageSize: 50,
     })
 
     const table = useReactTable({
