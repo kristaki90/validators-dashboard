@@ -4,9 +4,6 @@ import { Validator } from "../types/Validator";
 import { mapValidator } from "../mappers/mapValidator";
 import { SuiSystemState } from "../types/SuiSystemState";
 import { mistToSui } from "../helpers/suiConversion";
-import { ValidatorApy } from "@mysten/sui/client";
-import { useGetValidatorsApy } from "./useGetValidatorsApy";
-
 
 export const useGetLatestSuiSystemState = () => {
   const { suiClient } = useSui();
@@ -40,7 +37,7 @@ export const useGetLatestSuiSystemState = () => {
           };
           setSuiSystemState(suiSystemState);
           setValidators(validatorObjects);
-          
+
           setIsLoading(false);
         });
       })

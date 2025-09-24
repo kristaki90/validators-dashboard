@@ -39,27 +39,39 @@ export default function TableComponent() {
         {
             accessorKey: "stake",
             header: "Stake",
-            cell: ({ row }) => <div className="capitalize">{row.getValue("stake")}</div>,
+            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
+                <div className="capitalize font-bold">{Math.round(mistToSui(row.getValue("stake"))).toLocaleString()}</div>
+                <div className="ml-1 text-gray-400 text-sm"> SUI</div>
+            </div >,
         },
         {
             accessorKey: "nextEpochStake",
             header: "Next Epoch Stake",
-            cell: ({ row }) => <div className="capitalize">{Math.round(mistToSui(row.getValue("nextEpochStake"))).toLocaleString()}</div>,
+            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
+                <div className="capitalize font-bold">{Math.round(mistToSui(row.getValue("nextEpochStake"))).toLocaleString()}</div>
+                <div className="ml-1 text-gray-400 text-sm"> SUI</div>
+            </div>,
         },
         {
             accessorKey: "currentEpochGasPrice",
             header: "Current Epoch Gas Price",
-            cell: ({ row }) => <div className="capitalize">{row.getValue("currentEpochGasPrice")}</div>,
+            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
+                <div className="capitalize font-bold">{row.getValue("currentEpochGasPrice")}</div>
+                <div className="ml-1 text-gray-400 text-sm"> MIST</div>
+            </div>,
         },
         {
             accessorKey: "nextEpochGasPrice",
             header: "Next Epoch Gas Price",
-            cell: ({ row }) => <div className="capitalize">{row.getValue("nextEpochGasPrice")}</div>,
+            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
+                <div className="capitalize font-bold">{row.getValue("nextEpochGasPrice")}</div>
+                <div className="ml-1 text-gray-400 text-sm"> MIST</div>
+            </div>,
         },
         {
             accessorKey: "apy",
             header: "APY",
-            cell: ({ row }) => <div className="capitalize">{(Number(row.getValue("apy")) * 100).toFixed(2)}%</div>,
+            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("apy")) * 100).toFixed(2)}%</div>,
         },
     ], [])
 
