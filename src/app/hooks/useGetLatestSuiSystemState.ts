@@ -4,6 +4,8 @@ import { Validator } from "../types/Validator";
 import { mapValidator } from "../mappers/mapValidator";
 import { SuiSystemState } from "../types/SuiSystemState";
 import { mistToSui } from "../helpers/suiConversion";
+import { ValidatorApy } from "@mysten/sui/client";
+import { useGetValidatorsApy } from "./useGetValidatorsApy";
 
 
 export const useGetLatestSuiSystemState = () => {
@@ -23,22 +25,24 @@ export const useGetLatestSuiSystemState = () => {
     suiClient
       .getLatestSuiSystemState({})
       .then((resp) => {
-        console.log("Sui System State: ", resp);
-        const validatorObjects = resp.activeValidators.map(
-          (data) => mapValidator(data),
-        );
-        
-        const suiSystemState: SuiSystemState = {
-          epoch: resp.epoch,
-          avgAPY: null,
-          totalStaked: mistToSui(Number(resp.totalStake)),
-          nextEpochReferenceGasPrice: Number(resp.referenceGasPrice),
-          activeValidators: validatorObjects,
-        };
-        setSuiSystemState(suiSystemState);
-        setValidators(validatorObjects);
-        console.log("Validators: ", validators);
-        setIsLoading(false);
+
+        suiClient.getValidatorsApy({}).then((apyResp) => {
+          const validatorObjects = resp.activeValidators.map(
+            (data) => mapValidator(data, apyResp.apys),
+          );
+
+          const suiSystemState: SuiSystemState = {
+            epoch: resp.epoch,
+            avgAPY: null,
+            totalStaked: mistToSui(Number(resp.totalStake)),
+            nextEpochReferenceGasPrice: Number(resp.referenceGasPrice),
+            activeValidators: validatorObjects,
+          };
+          setSuiSystemState(suiSystemState);
+          setValidators(validatorObjects);
+          
+          setIsLoading(false);
+        });
       })
       .catch((err) => {
         setIsLoading(false);

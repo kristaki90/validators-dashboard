@@ -25,7 +25,6 @@ import { mistToSui } from "@/app/helpers/suiConversion"
 
 export default function TableComponent() {
     const { validators, isLoading } = useGetLatestSuiSystemState();
-    console.log("Validators from hook: ", validators);
 
     const data: Validator[] = React.useMemo(() => validators, [validators])
 
@@ -60,7 +59,7 @@ export default function TableComponent() {
         {
             accessorKey: "apy",
             header: "APY",
-            cell: ({ row }) => <div className="capitalize">{row.getValue("apy")}</div>,
+            cell: ({ row }) => <div className="capitalize">{(Number(row.getValue("apy")) * 100).toFixed(2)}%</div>,
         },
     ], [])
 

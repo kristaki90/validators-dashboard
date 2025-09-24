@@ -4,5 +4,5 @@ export interface Validator {
     nextEpochStake: string
     currentEpochGasPrice: string | null
     nextEpochGasPrice: string
-    apy: string | null
+    apy: number
 }
