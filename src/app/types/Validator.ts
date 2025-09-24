@@ -5,4 +5,5 @@ export interface Validator {
     currentEpochGasPrice: string | null
     nextEpochGasPrice: string
     apy: number
+    commissionRate: string
 }

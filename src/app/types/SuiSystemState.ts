@@ -2,7 +2,7 @@ import { Validator } from "./Validator"
 
 export interface SuiSystemState {
     epoch: string,
-    avgAPY: string | null,
+    avgAPY: number,
     totalStaked: number,
     nextEpochReferenceGasPrice: number,
     activeValidators: Validator[],

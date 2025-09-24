@@ -28,9 +28,12 @@ export const useGetLatestSuiSystemState = () => {
             (data) => mapValidator(data, apyResp.apys),
           );
 
+          const sumApy: number = apyResp.apys.reduce((sum, apy) => sum + apy.apy, 0);
+          const avgApy: number = sumApy / apyResp.apys.length;
+
           const suiSystemState: SuiSystemState = {
             epoch: resp.epoch,
-            avgAPY: null,
+            avgAPY: avgApy,
             totalStaked: mistToSui(Number(resp.totalStake)),
             nextEpochReferenceGasPrice: Number(resp.referenceGasPrice),
             activeValidators: validatorObjects,

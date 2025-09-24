@@ -69,6 +69,11 @@ export default function TableComponent() {
             </div>,
         },
         {
+            accessorKey: "commissionRate",
+            header: "Commission Rate",
+            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("commissionRate")) / 100)}%</div>,
+        },
+        {
             accessorKey: "apy",
             header: "APY",
             cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("apy")) * 100).toFixed(2)}%</div>,
