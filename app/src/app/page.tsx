@@ -1,6 +1,6 @@
-import InfoComponent from "@/components/InfoComponent";
-import TableComponent from "@/components/TableComponent";
-import TitleComponent from "@/components/TitleComponent";
+import InfoComponent from "@/app/components/InfoComponent";
+import TableComponent from "@/app/components/TableComponent";
+import TitleComponent from "@/app/components/TitleComponent";
 
 export default function Home() {
   return (

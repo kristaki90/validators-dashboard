@@ -9,7 +9,7 @@ import {
     PaginationState,
     useReactTable,
 } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/app/components/ui/button"
 import {
     Table,
     TableBody,
@@ -17,9 +17,9 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import { Validator } from "../app/types/Validator"
-import { useGetLatestSuiSystemState } from "../app/hooks/useGetLatestSuiSystemState"
+} from "@/app/components/ui/table"
+import { Validator } from "../types/Validator"
+import { useGetLatestSuiSystemState } from "../hooks/useGetLatestSuiSystemState"
 import { truncateString } from "@/app/helpers/truncateString"
 import { mistToSui } from "@/app/helpers/suiConversion"
 
