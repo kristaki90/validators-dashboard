@@ -90,7 +90,7 @@ export default function TableComponent() {
         columns,
         debugTable: true,
         manualPagination: false,
-        autoResetAll: false,
+        autoResetAll: true,
         initialState: { pagination },
         onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
