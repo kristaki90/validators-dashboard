@@ -82,18 +82,22 @@ export default function TableComponent() {
 
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
-        pageSize: 50,
+        pageSize: 10,
     })
 
     const table = useReactTable({
         data,
         columns,
         debugTable: true,
+        manualPagination: false,
+        autoResetAll: false,
+        initialState: { pagination },
         onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         state: {
             pagination,
+
         },
     })
 
@@ -151,23 +155,68 @@ export default function TableComponent() {
                         </Table>
                     </div>
                     <div className="flex items-center justify-end space-x-2 py-4">
-                        <div className="space-x-2">
+                        <div className="flex items-center gap-2">
                             <Button
-                                variant="outline"
-                                size="sm"
+                                variant={"outline"}
+                                onClick={() => table.firstPage()}
+                                disabled={!table.getCanPreviousPage()}
+                            >
+                                {'<<'}
+                            </Button>
+                            <Button
+                                variant={"outline"}
                                 onClick={() => table.previousPage()}
                                 disabled={!table.getCanPreviousPage()}
                             >
-                                Previous
+                                {'<'}
                             </Button>
                             <Button
-                                variant="outline"
-                                size="sm"
+                                variant={"outline"}
                                 onClick={() => table.nextPage()}
                                 disabled={!table.getCanNextPage()}
                             >
-                                Next
+                                {'>'}
                             </Button>
+                            <Button
+                                variant={"outline"}
+                                onClick={() => table.lastPage()}
+                                disabled={!table.getCanNextPage()}
+                            >
+                                {'>>'}
+                            </Button>
+                            <span className="flex items-center gap-1">
+                                <div>Page</div>
+                                <strong>
+                                    {table.getState().pagination.pageIndex + 1} of{' '}
+                                    {table.getPageCount().toLocaleString()}
+                                </strong>
+                            </span>
+                            <span className="flex items-center gap-1">
+                                | Go to page:
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max={table.getPageCount()}
+                                    defaultValue={table.getState().pagination.pageIndex + 1}
+                                    onChange={e => {
+                                        const page = e.target.value ? Number(e.target.value) - 1 : 0
+                                        table.setPageIndex(page)
+                                    }}
+                                    className="border p-1 rounded w-16"
+                                />
+                            </span>
+                            <select
+                                value={table.getState().pagination.pageSize}
+                                onChange={e => {
+                                    table.setPageSize(Number(e.target.value))
+                                }}
+                            >
+                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>

@@ -22,6 +22,7 @@ export const useGetLatestSuiSystemState = () => {
     suiClient
       .getLatestSuiSystemState({})
       .then((resp) => {
+        console.log("Got latest sui system state: ", resp);
 
         suiClient.getValidatorsApy({}).then((apyResp) => {
           const validatorObjects = resp.activeValidators.map(
@@ -45,6 +46,7 @@ export const useGetLatestSuiSystemState = () => {
         });
       })
       .catch((err) => {
+        console.log("Error getting validators: ", err);
         setIsLoading(false);
       });
   };
