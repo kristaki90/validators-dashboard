@@ -12,7 +12,7 @@ export const mapValidator = (validator: SuiValidatorSummary, apys: ValidatorApy[
     address: validator.suiAddress,
     stake: validator.stakingPoolSuiBalance,
     nextEpochStake: validator.nextEpochStake,
-    currentEpochGasPrice: null,
+    currentEpochGasPrice: validator.gasPrice,
     nextEpochGasPrice: validator.nextEpochGasPrice,
     apy: validatorApy[0].apy,
     commissionRate: validator.commissionRate,
