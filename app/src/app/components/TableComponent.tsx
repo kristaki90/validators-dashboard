@@ -89,6 +89,7 @@ export default function TableComponent() {
         data,
         columns,
         debugTable: true,
+        manualPagination: true,
         onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
