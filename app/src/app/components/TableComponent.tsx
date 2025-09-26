@@ -91,14 +91,15 @@ export default function TableComponent() {
         debugTable: true,
         manualPagination: false,
         autoResetAll: false,
-        onStateChange: (updater) => {
-            const newState = typeof updater === "function" ? updater(table.getState()) : updater
-            if (table.getState().pagination.pageIndex !== newState.pagination.pageIndex ||
-                table.getState().pagination.pageSize !== newState.pagination.pageSize) {
-                setPagination(newState.pagination)
-            }
-        },
+        // onStateChange: (updater) => {
+        //     const newState = typeof updater === "function" ? updater(table.getState()) : updater
+        //     if (table.getState().pagination.pageIndex !== newState.pagination.pageIndex ||
+        //         table.getState().pagination.pageSize !== newState.pagination.pageSize) {
+        //         setPagination(newState.pagination)
+        //     }
+        // },
         initialState: { pagination },
+        onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         state: {
