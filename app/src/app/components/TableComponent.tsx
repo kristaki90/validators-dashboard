@@ -96,7 +96,6 @@ export default function TableComponent() {
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
         pageSize: 10,
-        pageSize: 10,
     })
 
     const table = useReactTable({
@@ -187,7 +186,6 @@ export default function TableComponent() {
                                     {'<<'}
                                 </Button>
                                 <Button
-                                    variant={"outline"}
                                     variant={"outline"}
                                     onClick={() => table.previousPage()}
                                     disabled={!table.getCanPreviousPage()}
