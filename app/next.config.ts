@@ -6,6 +6,16 @@ const nextConfig: NextConfig = {
     reactCompiler: true,
   },
   output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+        port: '',
+        pathname: '**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

@@ -22,6 +22,7 @@ import { Validator } from "../types/Validator"
 import { useGetLatestSuiSystemState } from "../hooks/useGetLatestSuiSystemState"
 import { truncateString } from "@/app/helpers/truncateString"
 import { mistToSui } from "@/app/helpers/suiConversion"
+import Image from "next/image";
 
 export default function TableComponent() {
     const { validators, isLoading } = useGetLatestSuiSystemState();
@@ -33,7 +34,19 @@ export default function TableComponent() {
             accessorKey: "address",
             header: "Validator",
             cell: ({ row }) => (
-                <div className="lowercase">{truncateString(row.getValue("address"))}</div>
+                <div className="p-2 flex flex-row w-full justify-left items-end">
+                    <Image
+                        src={row.original.imageUrl ? row.original.imageUrl : "/sui-logo.png"}
+                        alt={row.original.name}
+                        width={40}
+                        height={40}
+                        className="rounded-full mr-4"
+                    />
+                    <div className="p-2 flex flex-col w-full justify-left items-start">
+                        <div className="font-bold">{truncateString(row.original.name)}</div>
+                        <div className="lowercase">{truncateString(row.getValue("address"))}</div>
+                    </div>
+                </div>
             ),
         },
         {
@@ -172,7 +185,7 @@ export default function TableComponent() {
                             </Button>
                             <Button
                                 variant={"outline"}
-                                onClick={() => table.nextPage()}
+                                onClick={() => { console.log("Page Index Before:", table.getState().pagination.pageIndex + 1); table.nextPage(); console.log("Page Index After:", table.getState().pagination.pageIndex + 1); }}
                                 disabled={!table.getCanNextPage()}
                             >
                                 {'>'}

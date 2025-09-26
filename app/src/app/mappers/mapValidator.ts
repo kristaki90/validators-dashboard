@@ -7,6 +7,8 @@ export const mapValidator = (validator: SuiValidatorSummary, apys: ValidatorApy[
     apy.address == validator.suiAddress);
 
   return {
+    name: validator.name,
+    imageUrl: validator.imageUrl,
     address: validator.suiAddress,
     stake: validator.stakingPoolSuiBalance,
     nextEpochStake: validator.nextEpochStake,
