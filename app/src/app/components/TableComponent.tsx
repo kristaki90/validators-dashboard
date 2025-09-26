@@ -96,6 +96,7 @@ export default function TableComponent() {
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
         pageSize: 10,
+        pageSize: 10,
     })
 
     const table = useReactTable({
@@ -110,6 +111,7 @@ export default function TableComponent() {
         getPaginationRowModel: getPaginationRowModel(),
         state: {
             pagination,
+
 
         },
     })
@@ -176,7 +178,16 @@ export default function TableComponent() {
                             >
                                 {'<<'}
                             </Button>
+                        <div className="flex items-center gap-2">
                             <Button
+                                variant={"outline"}
+                                onClick={() => table.firstPage()}
+                                disabled={!table.getCanPreviousPage()}
+                            >
+                                {'<<'}
+                            </Button>
+                            <Button
+                                variant={"outline"}
                                 variant={"outline"}
                                 onClick={() => table.previousPage()}
                                 disabled={!table.getCanPreviousPage()}
@@ -197,6 +208,39 @@ export default function TableComponent() {
                             >
                                 {'>>'}
                             </Button>
+                            <span className="flex items-center gap-1">
+                                <div>Page</div>
+                                <strong>
+                                    {table.getState().pagination.pageIndex + 1} of{' '}
+                                    {table.getPageCount().toLocaleString()}
+                                </strong>
+                            </span>
+                            <span className="flex items-center gap-1">
+                                | Go to page:
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max={table.getPageCount()}
+                                    defaultValue={table.getState().pagination.pageIndex + 1}
+                                    onChange={e => {
+                                        const page = e.target.value ? Number(e.target.value) - 1 : 0
+                                        table.setPageIndex(page)
+                                    }}
+                                    className="border p-1 rounded w-16"
+                                />
+                            </span>
+                            <select
+                                value={table.getState().pagination.pageSize}
+                                onChange={e => {
+                                    table.setPageSize(Number(e.target.value))
+                                }}
+                            >
+                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
                             <span className="flex items-center gap-1">
                                 <div>Page</div>
                                 <strong>
