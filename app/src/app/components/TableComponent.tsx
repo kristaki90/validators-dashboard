@@ -89,7 +89,8 @@ export default function TableComponent() {
         data,
         columns,
         debugTable: true,
-        onPaginationChange: setPagination,
+        manualPagination: false,
+        onPaginationChange: (pagination) => { console.log("pagination", pagination); setPagination(pagination) },
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         state: {
