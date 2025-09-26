@@ -26,7 +26,11 @@ import { mistToSui } from "@/app/helpers/suiConversion"
 export default function TableComponent() {
     const { validators, isLoading } = useGetLatestSuiSystemState();
 
-    const data: Validator[] = React.useMemo(() => validators, [validators])
+    const [data, setData] = React.useState<Validator[]>(() => validators);
+
+    React.useEffect(() => {
+        setData(validators);
+    }, [validators]);
 
     const columns: ColumnDef<Validator>[] = React.useMemo(() => [
         {
@@ -82,19 +86,15 @@ export default function TableComponent() {
 
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
-        pageSize: 50,
+        pageSize: 10,
     })
 
     const table = useReactTable({
         data,
         columns,
-        debugTable: true,
-        manualPagination: false,
-        autoResetAll: true,
-        pageCount: Math.ceil(data.length / pagination.pageSize),
-        onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onPaginationChange: setPagination,
         state: {
             pagination,
         },
@@ -154,23 +154,68 @@ export default function TableComponent() {
                         </Table>
                     </div>
                     <div className="flex items-center justify-end space-x-2 py-4">
-                        <div className="space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
+                        <div className="flex items-center gap-2">
+                            <button
+                                className="border rounded p-1"
+                                onClick={() => table.firstPage()}
+                                disabled={!table.getCanPreviousPage()}
+                            >
+                                {'<<'}
+                            </button>
+                            <button
+                                className="border rounded p-1"
                                 onClick={() => table.previousPage()}
                                 disabled={!table.getCanPreviousPage()}
                             >
-                                Previous
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
+                                {'<'}
+                            </button>
+                            <button
+                                className="border rounded p-1"
                                 onClick={() => table.nextPage()}
                                 disabled={!table.getCanNextPage()}
                             >
-                                Next
-                            </Button>
+                                {'>'}
+                            </button>
+                            <button
+                                className="border rounded p-1"
+                                onClick={() => table.lastPage()}
+                                disabled={!table.getCanNextPage()}
+                            >
+                                {'>>'}
+                            </button>
+                            <span className="flex items-center gap-1">
+                                <div>Page</div>
+                                <strong>
+                                    {table.getState().pagination.pageIndex + 1} of{' '}
+                                    {table.getPageCount().toLocaleString()}
+                                </strong>
+                            </span>
+                            <span className="flex items-center gap-1">
+                                | Go to page:
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max={table.getPageCount()}
+                                    defaultValue={table.getState().pagination.pageIndex + 1}
+                                    onChange={e => {
+                                        const page = e.target.value ? Number(e.target.value) - 1 : 0
+                                        table.setPageIndex(page)
+                                    }}
+                                    className="border p-1 rounded w-16"
+                                />
+                            </span>
+                            <select
+                                value={table.getState().pagination.pageSize}
+                                onChange={e => {
+                                    table.setPageSize(Number(e.target.value))
+                                }}
+                            >
+                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
