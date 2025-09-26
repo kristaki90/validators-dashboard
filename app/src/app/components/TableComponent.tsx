@@ -26,11 +26,7 @@ import { mistToSui } from "@/app/helpers/suiConversion"
 export default function TableComponent() {
     const { validators, isLoading } = useGetLatestSuiSystemState();
 
-    const [data, setData] = React.useState<Validator[]>(() => validators);
-
-    React.useEffect(() => {
-        setData(validators);
-    }, [validators]);
+    const data: Validator[] = React.useMemo(() => validators, [validators])
 
     const columns: ColumnDef<Validator>[] = React.useMemo(() => [
         {
@@ -92,9 +88,10 @@ export default function TableComponent() {
     const table = useReactTable({
         data,
         columns,
+        debugTable: true,
+        onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        onPaginationChange: setPagination,
         state: {
             pagination,
         },
