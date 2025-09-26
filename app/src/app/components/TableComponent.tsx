@@ -155,34 +155,34 @@ export default function TableComponent() {
                     </div>
                     <div className="flex items-center justify-end space-x-2 py-4">
                         <div className="flex items-center gap-2">
-                            <button
-                                className="border rounded p-1"
+                            <Button
+                                variant={"outline"}
                                 onClick={() => table.firstPage()}
                                 disabled={!table.getCanPreviousPage()}
                             >
                                 {'<<'}
-                            </button>
-                            <button
-                                className="border rounded p-1"
+                            </Button>
+                            <Button
+                                variant={"outline"}
                                 onClick={() => table.previousPage()}
                                 disabled={!table.getCanPreviousPage()}
                             >
                                 {'<'}
-                            </button>
-                            <button
-                                className="border rounded p-1"
+                            </Button>
+                            <Button
+                                variant={"outline"}
                                 onClick={() => table.nextPage()}
                                 disabled={!table.getCanNextPage()}
                             >
                                 {'>'}
-                            </button>
-                            <button
-                                className="border rounded p-1"
+                            </Button>
+                            <Button
+                                variant={"outline"}
                                 onClick={() => table.lastPage()}
                                 disabled={!table.getCanNextPage()}
                             >
                                 {'>>'}
-                            </button>
+                            </Button>
                             <span className="flex items-center gap-1">
                                 <div>Page</div>
                                 <strong>
