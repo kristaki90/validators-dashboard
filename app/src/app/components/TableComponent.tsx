@@ -90,11 +90,20 @@ export default function TableComponent() {
         columns,
         debugTable: true,
         manualPagination: false,
-        onPaginationChange: (pagination) => { console.log("pagination", pagination); setPagination(pagination) },
+        autoResetAll: false,
+        onStateChange: (updater) => {
+            const newState = typeof updater === "function" ? updater(table.getState()) : updater
+            if (table.getState().pagination.pageIndex !== newState.pagination.pageIndex ||
+                table.getState().pagination.pageSize !== newState.pagination.pageSize) {
+                setPagination(newState.pagination)
+            }
+        },
+        initialState: { pagination },
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         state: {
             pagination,
+
         },
     })
 
