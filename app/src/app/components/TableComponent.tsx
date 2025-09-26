@@ -90,6 +90,8 @@ export default function TableComponent() {
         columns,
         debugTable: true,
         manualPagination: false,
+        autoResetAll: true,
+        pageCount: Math.ceil(data.length / pagination.pageSize),
         onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -164,7 +166,7 @@ export default function TableComponent() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => { console.log("Next page", table.getState().pagination.pageIndex + 1); table.nextPage() }}
+                                onClick={() => table.nextPage()}
                                 disabled={!table.getCanNextPage()}
                             >
                                 Next
