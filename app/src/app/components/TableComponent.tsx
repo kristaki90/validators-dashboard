@@ -6,7 +6,9 @@ import {
     flexRender,
     getCoreRowModel,
     getPaginationRowModel,
+    getSortedRowModel,
     PaginationState,
+    SortingState,
     useReactTable,
 } from "@tanstack/react-table"
 import { Button } from "@/app/components/ui/button"
@@ -23,7 +25,6 @@ import { useGetLatestSuiSystemState } from "../hooks/useGetLatestSuiSystemState"
 import { truncateString } from "@/app/helpers/truncateString"
 import { mistToSui } from "@/app/helpers/suiConversion"
 import Image from "next/image";
-import { scoreValidatorSui } from "../helpers/scoring"
 
 export default function TableComponent() {
     const { validators, isLoading } = useGetLatestSuiSystemState();
@@ -103,8 +104,13 @@ export default function TableComponent() {
 
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
-        pageSize: 10,
+        pageSize: 114,
     })
+
+    const sorting: SortingState = [{
+        id: 'scoring',
+        desc: true,
+    }]
 
     const table = useReactTable({
         data,
@@ -112,10 +118,11 @@ export default function TableComponent() {
         debugTable: true,
         manualPagination: false,
         autoResetAll: true,
-        initialState: { pagination },
+        initialState: { pagination, sorting },
         onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         state: {
             pagination,
 

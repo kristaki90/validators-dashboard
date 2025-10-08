@@ -6,8 +6,6 @@ import { SuiSystemState } from "../types/SuiSystemState";
 import { mistToSui } from "../helpers/suiConversion";
 import { mapSystemContext } from "../mappers/mapSystemContext";
 import { SystemContext } from "../types/SystemContext";
-import { scoreValidatorSui } from "../helpers/scoring";
-
 export const useGetLatestSuiSystemState = () => {
   const { suiClient } = useSui();
 
