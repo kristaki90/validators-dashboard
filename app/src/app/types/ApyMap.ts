@@ -1,0 +1,1 @@
+export type ApyMap = Record<string, number>;

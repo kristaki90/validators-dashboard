@@ -6,7 +6,9 @@ import {
     flexRender,
     getCoreRowModel,
     getPaginationRowModel,
+    getSortedRowModel,
     PaginationState,
+    SortingState,
     useReactTable,
 } from "@tanstack/react-table"
 import { Button } from "@/app/components/ui/button"
@@ -35,13 +37,15 @@ export default function TableComponent() {
             header: "Validator",
             cell: ({ row }) => (
                 <div className="p-2 flex flex-row w-full justify-left items-end">
-                    <Image
-                        src={row.original.imageUrl ? row.original.imageUrl : "/sui-logo.png"}
-                        alt={row.original.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full mr-4"
-                    />
+                    {row.original.imageUrl && (
+                        <Image
+                            src={row.original.imageUrl}
+                            alt={row.original.name}
+                            className="rounded-full mr-4"
+                            width={40}
+                            height={40}
+                        />
+                    )}
                     <div className="p-2 flex flex-col w-full justify-left items-start">
                         <div className="font-bold">{truncateString(row.original.name)}</div>
                         <div className="lowercase">{truncateString(row.getValue("address"))}</div>
@@ -91,12 +95,22 @@ export default function TableComponent() {
             header: "APY",
             cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("apy")) * 100).toFixed(2)}%</div>,
         },
+        {
+            accessorKey: "scoring",
+            header: "Scoring",
+            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("scoring")) * 100).toFixed(2)}%</div>,
+        },
     ], [])
 
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,
-        pageSize: 10,
+        pageSize: 114,
     })
+
+    const sorting: SortingState = [{
+        id: 'scoring',
+        desc: true,
+    }]
 
     const table = useReactTable({
         data,
@@ -104,10 +118,11 @@ export default function TableComponent() {
         debugTable: true,
         manualPagination: false,
         autoResetAll: true,
-        initialState: { pagination },
+        initialState: { pagination, sorting },
         onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         state: {
             pagination,
 

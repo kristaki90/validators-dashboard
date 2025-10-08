@@ -1,11 +1,15 @@
 export interface Validator {
     name: string
-    imageUrl: string | null
+    imageUrl: string
     address: string
-    stake: string | null
+    stake: string
     nextEpochStake: string
-    currentEpochGasPrice: string | null
+    currentEpochGasPrice: string
     nextEpochGasPrice: string
     apy: number
     commissionRate: string
+    votingPower: string
+    pendingStake: string
+    pendingTotalSuiWithdraw: string
+    scoring: number
 }
