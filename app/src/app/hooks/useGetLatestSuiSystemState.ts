@@ -4,12 +4,16 @@ import { Validator } from "../types/Validator";
 import { mapValidator } from "../mappers/mapValidator";
 import { SuiSystemState } from "../types/SuiSystemState";
 import { mistToSui } from "../helpers/suiConversion";
+import { mapSystemContext } from "../mappers/mapSystemContext";
+import { SystemContext } from "../types/SystemContext";
+import { scoreValidatorSui } from "../helpers/scoring";
 
 export const useGetLatestSuiSystemState = () => {
   const { suiClient } = useSui();
 
   const [validators, setValidators] = useState<Validator[]>([]);
   const [suiSystemState, setSuiSystemState] = useState<SuiSystemState>();
+  const [systemContext, setSystemContext] = useState<SystemContext>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -24,9 +28,15 @@ export const useGetLatestSuiSystemState = () => {
       .then((resp) => {
         console.log("Got latest sui system state: ", resp);
 
+        const systemContext = mapSystemContext(resp);
+
+        console.log("Mapped system context: ", systemContext);
+
+        // get APYs
+
         suiClient.getValidatorsApy({}).then((apyResp) => {
           const validatorObjects = resp.activeValidators.map(
-            (data) => mapValidator(data, apyResp.apys),
+            (data) => mapValidator(data, apyResp.apys, systemContext),
           );
 
           const sumApy: number = apyResp.apys.reduce((sum, apy) => sum + apy.apy, 0);
@@ -39,11 +49,14 @@ export const useGetLatestSuiSystemState = () => {
             nextEpochReferenceGasPrice: Number(resp.referenceGasPrice),
             activeValidators: validatorObjects,
           };
+
           setSuiSystemState(suiSystemState);
           setValidators(validatorObjects);
+          setSystemContext(systemContext);
 
           setIsLoading(false);
         });
+
       })
       .catch((err) => {
         console.log("Error getting validators: ", err);
@@ -54,6 +67,7 @@ export const useGetLatestSuiSystemState = () => {
   return {
     suiSystemState,
     validators,
+    systemContext,
     isLoading,
   };
 };

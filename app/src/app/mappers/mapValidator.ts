@@ -1,12 +1,14 @@
 import { SuiValidatorSummary } from "@mysten/sui/client";
 import { Validator } from "../types/Validator";
 import { ValidatorApy } from "@mysten/sui/client";
+import { scoreValidatorSui } from "../helpers/scoring";
+import { SystemContext } from "../types/SystemContext";
 
-export const mapValidator = (validator: SuiValidatorSummary, apys: ValidatorApy[]): Validator => {
+export const mapValidator = (validator: SuiValidatorSummary, apys: ValidatorApy[], systemContext: SystemContext): Validator => {
   const validatorApy = apys.filter((apy) =>
     apy.address == validator.suiAddress);
 
-  return {
+  const mappedValidator = {
     name: validator.name,
     imageUrl: validator.imageUrl,
     address: validator.suiAddress,
@@ -16,5 +18,21 @@ export const mapValidator = (validator: SuiValidatorSummary, apys: ValidatorApy[
     nextEpochGasPrice: validator.nextEpochGasPrice,
     apy: validatorApy[0].apy,
     commissionRate: validator.commissionRate,
-  };
+    votingPower: validator.votingPower,
+    pendingStake: validator.pendingStake,
+    pendingTotalSuiWithdraw: validator.pendingTotalSuiWithdraw,
+    scoring: 0, // to be filled later by scoreValidatorSui
+  }
+
+
+  const apyByAddress: Record<string, number> = {};
+  apyByAddress[mappedValidator.address] = mappedValidator.apy;
+
+  const scoring = scoreValidatorSui(mappedValidator, systemContext, apyByAddress);
+
+  console.log("Computed scoring: ", scoring);
+
+  mappedValidator.scoring = scoring;
+
+  return mappedValidator;
 };
