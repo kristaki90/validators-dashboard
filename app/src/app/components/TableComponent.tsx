@@ -59,6 +59,11 @@ export default function TableComponent() {
             cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("scoring")) * 100).toFixed(2)}%</div>,
         },
         {
+            accessorKey: "scoring",
+            header: "Scoring",
+            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("scoring")) * 100).toFixed(2)}%</div>,
+        },
+        {
             accessorKey: "stake",
             header: "Stake",
             cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
