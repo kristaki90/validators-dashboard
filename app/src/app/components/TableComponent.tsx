@@ -195,7 +195,7 @@ export default function TableComponent() {
                                 </Button>
                                 <Button
                                     variant={"outline"}
-                                    onClick={() => { console.log("Page Index Before:", table.getState().pagination.pageIndex + 1); table.nextPage(); console.log("Page Index After:", table.getState().pagination.pageIndex + 1); }}
+                                    onClick={() => { table.nextPage(); }}
                                     disabled={!table.getCanNextPage()}
                                 >
                                     {'>'}
