@@ -19,8 +19,6 @@ export default function InfoComponent() {
                             <div className="p-2  text-gray-500 text-sm font-bold">  Avg. APY </div>
                             <div className="p-2 text-2xl font-bold">  {(suiSystemState.avgAPY * 100).toFixed(3)}% </div>
                         </div>
-                    </div>
-                    <div className="flex flex-row w-full justify-between space-x-4 pt-4">
                         <div className="w-full overflow-hidden rounded-md border p-7 bg-white shadow-lg">
                             <div className="p-2 text-gray-500 text-sm font-bold">  Total Staked </div>
 
