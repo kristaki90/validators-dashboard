@@ -30,8 +30,6 @@ export const mapValidator = (validator: SuiValidatorSummary, apys: ValidatorApy[
 
   const scoring = scoreValidatorSui(mappedValidator, systemContext, apyByAddress);
 
-  console.log("Computed scoring: ", scoring);
-
   mappedValidator.scoring = scoring;
 
   return mappedValidator;

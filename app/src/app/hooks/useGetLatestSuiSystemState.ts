@@ -24,7 +24,6 @@ export const useGetLatestSuiSystemState = () => {
     suiClient
       .getLatestSuiSystemState({})
       .then((resp) => {
-        console.log("Got latest sui system state: ", resp);
 
         const systemContext = mapSystemContext(resp);
 
