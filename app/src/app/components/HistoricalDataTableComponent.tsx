@@ -23,19 +23,21 @@ import {
     TableHeader,
     TableRow,
 } from "@/app/components/ui/table"
-import { Validator } from "../types/Validator"
-import { useGetLatestSuiSystemState } from "../hooks/useGetLatestSuiSystemState"
+import { HistoricalScore } from "../types/HistoricalScore"
 import { truncateString } from "@/app/helpers/truncateString"
-import { mistToSui } from "@/app/helpers/suiConversion"
-import Image from "next/image";
 import { Input } from "./ui/input";
+import { useGetHistoricalData } from "../hooks/useGetHistoricalData";
 
-export default function TableComponent() {
+export default function HistoricalDataTableComponent() {
 
-    const { validators, isLoading } = useGetLatestSuiSystemState();
-    const data = validators;
+    const { historicalData, isLoading } = useGetHistoricalData();
+    const data = historicalData;
 
-    const columns: ColumnDef<Validator>[] = React.useMemo(() => [
+    // const data: HistoricalScore[] = React.useMemo(() => historicalData, [historicalData])
+
+    console.log({ data });
+
+    const columns: ColumnDef<HistoricalScore>[] = React.useMemo(() => [
         {
             accessorKey: "name",
             header: "Validator",
@@ -48,15 +50,6 @@ export default function TableComponent() {
             },
             cell: ({ row }) => (
                 <div className="p-2 flex flex-row w-full justify-left items-end">
-                    {row.original.imageUrl && (
-                        <Image
-                            src={row.original.imageUrl}
-                            alt={row.original.name}
-                            className="rounded-full mr-4"
-                            width={40}
-                            height={40}
-                        />
-                    )}
                     <div className="p-2 flex flex-col w-full justify-left items-start">
                         <div className="font-bold">{truncateString(row.getValue("name"))}</div>
                         <div className="lowercase">{truncateString(row.original.address)}</div>
@@ -67,57 +60,9 @@ export default function TableComponent() {
             enableManualFiltering: true,
         },
         {
-            accessorKey: "scoring",
-            header: "Scoring",
-            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("scoring")) * 100).toFixed(2)}%</div>,
-            enableSorting: true,
-        },
-        {
-            accessorKey: "stake",
-            header: "Stake",
-            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
-                <div className="capitalize font-bold">{Math.round(mistToSui(row.getValue("stake"))).toLocaleString()}</div>
-                <div className="ml-1 text-gray-400 text-sm"> SUI</div>
-            </div >,
-            enableSorting: true,
-        },
-        {
-            accessorKey: "nextEpochStake",
-            header: "Next Epoch Stake",
-            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
-                <div className="capitalize font-bold">{Math.round(mistToSui(row.getValue("nextEpochStake"))).toLocaleString()}</div>
-                <div className="ml-1 text-gray-400 text-sm"> SUI</div>
-            </div>,
-            enableSorting: true,
-        },
-        {
-            accessorKey: "currentEpochGasPrice",
-            header: "Current Epoch Gas Price",
-            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
-                <div className="capitalize font-bold">{row.getValue("currentEpochGasPrice")}</div>
-                <div className="ml-1 text-gray-400 text-sm"> MIST</div>
-            </div>,
-            enableSorting: true,
-        },
-        {
-            accessorKey: "nextEpochGasPrice",
-            header: "Next Epoch Gas Price",
-            cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
-                <div className="capitalize font-bold">{row.getValue("nextEpochGasPrice")}</div>
-                <div className="ml-1 text-gray-400 text-sm"> MIST</div>
-            </div>,
-            enableSorting: true,
-        },
-        {
-            accessorKey: "commissionRate",
-            header: "Commission Rate",
-            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("commissionRate")) / 100)}%</div>,
-            enableSorting: true,
-        },
-        {
-            accessorKey: "apy",
-            header: "APY",
-            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("apy")) * 100).toFixed(2)}%</div>,
+            accessorKey: "historicalScore",
+            header: "Historical Score",
+            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("historicalScore")) * 100).toFixed(2)}%</div>,
             enableSorting: true,
         },
     ], [])
@@ -128,7 +73,7 @@ export default function TableComponent() {
     })
 
     const [sorting, setSorting] = React.useState<SortingState>([{
-        id: 'scoring',
+        id: 'historicalScore',
         desc: true,
     }])
 
