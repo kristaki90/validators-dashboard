@@ -29,11 +29,16 @@ import { truncateString } from "@/app/helpers/truncateString"
 import { mistToSui } from "@/app/helpers/suiConversion"
 import Image from "next/image";
 import { Input } from "./ui/input";
+import { useEffect } from "react";
 
 export default function TableComponent() {
 
     const { validators, isLoading } = useGetLatestSuiSystemState();
-    const data = validators;
+    let data: Validator[] = validators;
+
+    useEffect(() => {
+        data = validators;
+    }, [!validators]);
 
     const columns: ColumnDef<Validator>[] = React.useMemo(() => [
         {
@@ -64,7 +69,7 @@ export default function TableComponent() {
                 </div>
             ),
             enableSorting: false,
-            enableManualFiltering: true,
+            // enableManualFiltering: true,
         },
         {
             accessorKey: "scoring",

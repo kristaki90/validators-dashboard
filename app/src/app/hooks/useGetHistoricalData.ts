@@ -15,9 +15,11 @@ export const useGetHistoricalData = () => {
         fetch('https://sui-validators-dashboard.onrender.com/api/validator-scores')
             .then((response) => response.json())
             .then((data) => {
+                setIsLoading(false);
                 setHistoricalData(data);
             })
             .catch((err) => {
+                setIsLoading(false);
                 console.log(err.message);
             });
     };

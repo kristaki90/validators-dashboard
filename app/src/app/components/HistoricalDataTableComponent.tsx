@@ -27,15 +27,16 @@ import { HistoricalScore } from "../types/HistoricalScore"
 import { truncateString } from "@/app/helpers/truncateString"
 import { Input } from "./ui/input";
 import { useGetHistoricalData } from "../hooks/useGetHistoricalData";
+import { useEffect } from "react";
 
 export default function HistoricalDataTableComponent() {
 
     const { historicalData, isLoading } = useGetHistoricalData();
-    const data = historicalData;
+    let data: HistoricalScore[] = React.useMemo(() => historicalData, [historicalData])
 
-    // const data: HistoricalScore[] = React.useMemo(() => historicalData, [historicalData])
-
-    console.log({ data });
+    useEffect(() => {
+        data = historicalData;
+    }, [!historicalData]);
 
     const columns: ColumnDef<HistoricalScore>[] = React.useMemo(() => [
         {
@@ -57,7 +58,7 @@ export default function HistoricalDataTableComponent() {
                 </div>
             ),
             enableSorting: false,
-            enableManualFiltering: true,
+            // enableManualFiltering: true,
         },
         {
             accessorKey: "historicalScore",
