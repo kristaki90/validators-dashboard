@@ -32,7 +32,7 @@ import { useEffect } from "react";
 export default function HistoricalDataTableComponent() {
 
     const { historicalData, isLoading } = useGetHistoricalData();
-    let data: HistoricalScore[] = React.useMemo(() => historicalData, [historicalData])
+    let data: HistoricalScore[] = historicalData;
 
     useEffect(() => {
         data = historicalData;
