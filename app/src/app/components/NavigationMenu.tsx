@@ -14,11 +14,10 @@ import {
 } from "@/app/components/ui/navigation-menu"
 
 export function NavMenu() {
-    // const isMobile = useIsMobile()
-    const isMobile = false;
+    // const { isMobile } = useIsMobile();
 
     return (
-        <NavigationMenu viewport={isMobile}>
+        <NavigationMenu viewport={false}>
             <NavigationMenuList className="flex-wrap">
                 <NavigationMenuItem>
                     <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>

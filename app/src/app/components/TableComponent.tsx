@@ -30,8 +30,10 @@ import { mistToSui } from "@/app/helpers/suiConversion"
 import Image from "next/image";
 import { Input } from "./ui/input";
 import { useEffect } from "react";
+import { useRouter } from 'next/navigation'
 
 export default function TableComponent() {
+    const router = useRouter()
 
     const { validators, isLoading } = useGetLatestSuiSystemState();
     let data: Validator[] = validators;
@@ -161,6 +163,13 @@ export default function TableComponent() {
         },
     })
 
+    // const navigate = useNavigate();
+    const handleRowClick = (row: any) => {
+        console.log(row.original.address)
+        router.push(`validator/${row.original.address}`);
+    }
+
+
     return (
         <div className="my-7 p-7 bg-white rounded-lg shadow-lg">
             {(data.length && !isLoading) &&
@@ -219,9 +228,7 @@ export default function TableComponent() {
                                 <TableBody>
                                     {table.getRowModel().rows?.length ? (
                                         table.getRowModel().rows.map((row) => (
-                                            <TableRow
-                                                key={row.id}
-                                            >
+                                            <TableRow key={row.id} onClick={() => handleRowClick(row)}>
                                                 {row.getAllCells().map((cell) => (
                                                     <TableCell key={cell.id}>
                                                         {flexRender(

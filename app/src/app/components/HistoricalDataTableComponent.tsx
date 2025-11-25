@@ -28,6 +28,7 @@ import { truncateString } from "@/app/helpers/truncateString"
 import { Input } from "./ui/input";
 import { useGetHistoricalData } from "../hooks/useGetHistoricalData";
 import { useEffect } from "react";
+import { Spinner } from "@/app/components/ui/spinner"
 
 export default function HistoricalDataTableComponent() {
 
@@ -63,7 +64,7 @@ export default function HistoricalDataTableComponent() {
         {
             accessorKey: "historicalScore",
             header: "Historical Score",
-            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("historicalScore")) * 100).toFixed(2)}%</div>,
+            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("historicalScore"))).toFixed(2)}%</div>,
             enableSorting: true,
         },
     ], [])
@@ -104,6 +105,7 @@ export default function HistoricalDataTableComponent() {
 
     return (
         <div className="my-7 p-7 bg-white rounded-lg shadow-lg">
+            {(!data.length && isLoading) && <Spinner />}
             {(data.length && !isLoading) &&
                 <div className="w-full">
                     <div className="w-full mb-2 flex flex-row justify-end">
@@ -172,6 +174,7 @@ export default function HistoricalDataTableComponent() {
                                                     </TableCell>
                                                 ))}
                                             </TableRow>
+
                                         ))
                                     ) : (
                                         <TableRow>
