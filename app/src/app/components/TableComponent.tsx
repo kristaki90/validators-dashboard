@@ -163,8 +163,7 @@ export default function TableComponent() {
         },
     })
 
-    // const navigate = useNavigate();
-    const handleRowClick = (row: any) => {
+    const handleRowClick = (row: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
         console.log(row.original.address)
         router.push(`validator/${row.original.address}`);
     }
