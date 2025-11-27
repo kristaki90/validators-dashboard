@@ -64,27 +64,27 @@ export default function StakingRewardsComponent(props: { address: string }) {
                                             <div>
                                                 <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
                                                     <div className="p-2 text-gray-500 text-sm font-bold">  Initial Stake:</div>
-                                                    <div className="p-2 text-md font-bold">  #{stakingRewards.initialStake} </div>
+                                                    <div className="p-2 text-md font-bold">  {stakingRewards.initialStake} </div>
                                                 </div>
                                                 <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
                                                     <div className="p-2 text-gray-500 text-sm font-bold">  Epoch Now:</div>
-                                                    <div className="p-2 text-md font-bold">  #{stakingRewards.epochNow} </div>
+                                                    <div className="p-2 text-md font-bold">  {stakingRewards.epochNow} </div>
                                                 </div>
                                                 <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
                                                     <div className="p-2  text-gray-500 text-sm font-bold">  Starting Epoch:</div>
-                                                    <div className="p-2 text-md font-bold"> #{stakingRewards.epochStart} </div>
-                                                </div>
-                                                <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
-                                                    <div className="p-2  text-gray-500 text-sm font-bold">  Final Amount:</div>
-                                                    <div className="p-2 text-md font-bold"> {(Number(stakingRewards.finalAmount)).toFixed(2)} </div>
+                                                    <div className="p-2 text-md font-bold"> {stakingRewards.epochStart} </div>
                                                 </div>
                                                 <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
                                                     <div className="p-2  text-gray-500 text-sm font-bold">  SUI Gain:</div>
                                                     <div className="p-2 text-md font-bold"> {(Number(stakingRewards.gainSui)).toFixed(2)} </div>
                                                 </div>
                                                 <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
-                                                    <div className="p-2  text-gray-500 text-sm font-bold">  Return Percent:</div>
+                                                    <div className="p-2  text-gray-500 text-sm font-bold">  Reward Percentage:</div>
                                                     <div className="p-2 text-md font-bold"> {(Number(stakingRewards.returnPercent)).toFixed(2)}% </div>
+                                                </div>
+                                                <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
+                                                    <div className="p-2  text-gray-500 text-sm font-bold">  Final Amount:</div>
+                                                    <div className="p-2 text-md font-bold"> {(Number(stakingRewards.finalAmount)).toFixed(2)} </div>
                                                 </div>
                                             </div>
                                         </div>

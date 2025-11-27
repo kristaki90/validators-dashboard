@@ -30,7 +30,7 @@ export default function ValidatorInfoComponent(props: { address: string }) {
 
                     <div className="flex flex-row xl:flex-row w-full justify-between space-x-4">
                         <div className="flex flex-col md:flex-col w-full justify-between space-x-4">
-                            <div className="p-2 text-gray-500 text-sm font-bold">  All Time </div>
+                            <div className="p-2 text-gray-500 text-sm font-bold">  Last Year </div>
                             <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
                                 <div className="flex flex-row md:flex-row w-full mb-2 overflow-hidden rounded-md border p-7 bg-white shadow-lg">
                                     <div className="flex flex-col md:flex-col w-full justify-between space-x-4">
