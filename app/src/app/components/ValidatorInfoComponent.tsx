@@ -4,12 +4,14 @@ import * as React from "react"
 import { useGetValidatorInfo } from "../hooks/useGetValidatorInfo";
 import { Spinner } from "./ui/spinner";
 import { ValidatorInfo } from "../types/ValidatorInfo";
-import { useEffect } from "react";
-import { Button } from "./ui/button"
-import { Input } from "./ui/input"
+import { useEffect, useMemo } from "react";
+import { useGetLatestSuiSystemState } from "../hooks/useGetLatestSuiSystemState";
+import { mistToSui } from "../helpers/suiConversion";
 
 export default function ValidatorInfoComponent(props: { address: string }) {
     const { validatorInfo, isLoading } = useGetValidatorInfo(props.address);
+    const { validators, isLoading: isSystemStateLoading } = useGetLatestSuiSystemState();
+
     console.log(validatorInfo);
     let data: ValidatorInfo | null = validatorInfo;
 
@@ -17,66 +19,94 @@ export default function ValidatorInfoComponent(props: { address: string }) {
         data = validatorInfo;
     }, [!validatorInfo]);
 
+    const validatorStakeInfo = useMemo(() => {
+        if (!validators?.length) {
+            return null;
+        }
+
+        return validators.find((validator) => validator.address === props.address) ?? null;
+    }, [validators, props.address]);
+
+    const formattedStake = validatorStakeInfo
+        ? `${Math.round(mistToSui(Number(validatorStakeInfo.stake))).toLocaleString()} SUI`
+        : null;
+
+    const formattedStakeShare = validatorStakeInfo
+        ? `${(Number(validatorStakeInfo.stakeSharePercentage) * 100).toFixed(2)}% Pool Share`
+        : null;
 
     return (
         <div className="my-7">
             {(!data && isLoading) && <Spinner />}
-            {!isLoading && data &&
-                <div className="w-full">
-                    <div className="w-full mb-2 overflow-hidden">
-                        <div className="p-2 text-2xl font-bold">  {data.name} </div>
-                    </div>
-
-
-                    <div className="flex flex-row xl:flex-row w-full justify-between space-x-4">
-                        <div className="flex flex-col md:flex-col w-full justify-between space-x-4">
-                            <div className="p-2 text-gray-500 text-sm font-bold">  Last Year </div>
-                            <div className="flex flex-row md:flex-row w-full justify-between space-x-4">
-                                <div className="flex flex-row md:flex-row w-full mb-2 overflow-hidden rounded-md border p-7 bg-white shadow-lg">
-                                    <div className="flex flex-col md:flex-col w-full justify-between space-x-4">
-                                        <div className="p-2 text-gray-500 text-sm font-bold">  Ranking</div>
-                                        <div className="p-2 text-2xl font-bold">  #{data.rankingOverall} </div>
-                                    </div>
-                                    <div className="flex flex-col md:flex-col w-full justify-between space-x-4">
-                                        <div className="p-2  text-gray-500 text-sm font-bold">  Score</div>
-                                        <div className="p-2 text-2xl font-bold"> {(Number(data.historicalScore)).toFixed(2)}% </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-row xl:flex-row w-full justify-between space-x-4">
-                        <div className="flex flex-col md:flex-col w-full justify-between space-x-4">
-                            <div className="p-2 text-gray-500 text-sm font-bold">  Last 30 Epochs </div>
-                            <div className="w-full mb-2 overflow-hidden rounded-md border p-7 bg-white shadow-lg">
+            {!isLoading && data && (
+                <div className="space-y-6">
+                    <section className="rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-2xl">
+                        <div className="p-6 md:p-8 flex flex-col gap-6">
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                                 <div>
-                                    <div className="p-2 text-gray-500 text-sm font-bold">  Ranking</div>
-                                    <div className="p-2 text-2xl font-bold">  #{data.rankingLast30Epochs} </div>
-
-                                    <div className="p-2  text-gray-500 text-sm font-bold">  Score</div>
-                                    <div className="p-2 text-2xl font-bold"> {(Number(data.scoreLast30Epochs)).toFixed(2)}% </div>
+                                    <p className="uppercase text-xs tracking-[0.2em] text-white/70">Validator</p>
+                                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{data.name}</h1>
+                                    <p className="mt-2 text-sm font-mono text-white/80 break-all">{props.address}</p>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col md:flex-col w-full justify-between space-x-4">
-                            <div className="p-2 text-gray-500 text-sm font-bold"> Last 180 Epochs </div>
-                            <div className="flex flex-col md:flex-row w-full justify-between space-x-4">
-                                <div className="w-full mb-2 overflow-hidden rounded-md border p-7 bg-white shadow-lg">
-                                    <div>
-                                        <div className="p-2 text-gray-500 text-sm font-bold">  Ranking</div>
-                                        <div className="p-2 text-2xl font-bold">  #{data.rankingLast180Epochs} </div>
-
-                                        <div className="p-2  text-gray-500 text-sm font-bold">  Score</div>
-                                        <div className="p-2 text-2xl font-bold"> {(Number(data.scoreLast180Epochs)).toFixed(2)}% </div>
+                                {(validatorStakeInfo && !isSystemStateLoading) && (
+                                    <div className="rounded-xl bg-white/15 px-6 py-4 backdrop-blur">
+                                        <p className="text-xs uppercase tracking-wide text-white/80">Stake</p>
+                                        <p className="text-2xl font-bold">{formattedStake}</p>
+                                        <p className="text-sm text-white/80">{formattedStakeShare}</p>
                                     </div>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="rounded-xl bg-white/10 p-4 backdrop-blur">
+                                    <p className="text-xs uppercase tracking-wide text-white/70">Overall Rank</p>
+                                    <p className="text-3xl font-bold mt-2">#{data.rankingOverall}</p>
+                                </div>
+                                <div className="rounded-xl bg-white/10 p-4 backdrop-blur">
+                                    <p className="text-xs uppercase tracking-wide text-white/70">Historical Score</p>
+                                    <p className="text-3xl font-bold mt-2">{(Number(data.historicalScore)).toFixed(2)}%</p>
+                                </div>
+                                {(validatorStakeInfo && !isSystemStateLoading) && (
+                                    <div className="rounded-xl bg-white/10 p-4 backdrop-blur">
+                                        <p className="text-xs uppercase tracking-wide text-white/70">Pool Share</p>
+                                        <p className="text-3xl font-bold mt-2">{formattedStakeShare}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-lg">
+                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Last 30 Epochs</p>
+                            <div className="mt-4 grid grid-cols-2 gap-4">
+                                <div className="rounded-xl bg-slate-50 p-4">
+                                    <p className="text-xs uppercase tracking-wide text-slate-500">Ranking</p>
+                                    <p className="text-2xl font-bold mt-1">#{data.rankingLast30Epochs}</p>
+                                </div>
+                                <div className="rounded-xl bg-slate-50 p-4">
+                                    <p className="text-xs uppercase tracking-wide text-slate-500">Score</p>
+                                    <p className="text-2xl font-bold mt-1">{(Number(data.scoreLast30Epochs)).toFixed(2)}%</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
+
+                        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-lg">
+                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Last 180 Epochs</p>
+                            <div className="mt-4 grid grid-cols-2 gap-4">
+                                <div className="rounded-xl bg-slate-50 p-4">
+                                    <p className="text-xs uppercase tracking-wide text-slate-500">Ranking</p>
+                                    <p className="text-2xl font-bold mt-1">#{data.rankingLast180Epochs}</p>
+                                </div>
+                                <div className="rounded-xl bg-slate-50 p-4">
+                                    <p className="text-xs uppercase tracking-wide text-slate-500">Score</p>
+                                    <p className="text-2xl font-bold mt-1">{(Number(data.scoreLast180Epochs)).toFixed(2)}%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            }
+            )}
         </div>
     );
 }
