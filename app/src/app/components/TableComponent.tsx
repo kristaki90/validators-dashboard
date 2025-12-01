@@ -331,55 +331,50 @@ export default function TableComponent() {
         <section className="my-10">
             <div className="rounded-3xl border border-white/60 bg-white/90 p-6 shadow-2xl backdrop-blur">
                 <div className="space-y-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <p className="text-xs uppercase tracking-[0.4em] text-slate-400">Validator Leaderboard</p>
-                                <h2 className="text-2xl font-bold text-slate-900">Current Validator Snapshot</h2>
-                                <p className="text-sm text-slate-500">Tap any row for a deeper validator profile.</p>
-                            </div>
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div className="flex-1">
+                            <p className="text-xs uppercase tracking-[0.4em] text-slate-400">Validator Leaderboard</p>
+                            <h2 className="text-2xl font-bold text-slate-900">Current Validator Snapshot</h2>
+                            <p className="text-sm text-slate-500 mt-1">Tap any row for a deeper validator profile.</p>
+                        </div>
+                        <div className="flex flex-col gap-2 items-end md:items-start">
                             <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
                                 Latest on-chain snapshot
                             </span>
+                            {leaderboardStats.topValidator && (
+                                <div
+                                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-3.5 shadow-lg cursor-pointer transition hover:scale-105 hover:shadow-xl flex-shrink-0 w-full md:w-auto"
+                                    onClick={() => router.push(`validator/${leaderboardStats.topValidator!.address}`)}
+                                >
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-2 mb-1.5">
+                                            <div className="rounded-full bg-white/20 p-1 backdrop-blur">
+                                                <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/90">Top Score</p>
+                                        </div>
+                                        <p className="text-xl font-extrabold text-white mb-1.5">{leaderboardStats.topScore.toFixed(2)}%</p>
+                                        <div className="pt-1.5 border-t border-white/20">
+                                            <p className="text-[10px] font-bold text-white mb-0.5 truncate">{leaderboardStats.topValidator.name}</p>
+                                            <p className="text-[9px] text-white/80 font-mono truncate">{leaderboardStats.topValidator.address}</p>
+                                        </div>
+                                    </div>
+                                    <div className="absolute -right-3 -top-3 h-12 w-12 rounded-full bg-white/10 blur-xl"></div>
+                                    <div className="absolute -bottom-2 -left-2 h-8 w-8 rounded-full bg-white/10 blur-xl"></div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:flex-1">
-                            <div className="relative w-full md:max-w-sm">
-                                <HiMagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <Input
-                                    className="pl-9 text-sm"
-                                    onChange={e => { setColumnFilters([{ id: 'name', value: truncateString(e.target.value) }]); }}
-                                    placeholder="Search by address or name..."
-                                />
-                            </div>
-                            <p className="text-xs uppercase tracking-wide text-slate-400 hidden md:block">Showing top performers first</p>
-                        </div>
-                        {leaderboardStats.topValidator && (
-                            <div
-                                className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-4 shadow-lg cursor-pointer transition hover:scale-105 hover:shadow-xl flex-shrink-0"
-                                onClick={() => router.push(`validator/${leaderboardStats.topValidator!.address}`)}
-                            >
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="rounded-full bg-white/20 p-1 backdrop-blur">
-                                            <svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                            </svg>
-                                        </div>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">Top Score</p>
-                                    </div>
-                                    <p className="text-2xl font-extrabold text-white mb-2">{leaderboardStats.topScore.toFixed(2)}%</p>
-                                    <div className="pt-2 border-t border-white/20">
-                                        <p className="text-xs font-bold text-white mb-0.5 truncate">{leaderboardStats.topValidator.name}</p>
-                                        <p className="text-[10px] text-white/80 font-mono truncate max-w-[200px]">{leaderboardStats.topValidator.address}</p>
-                                    </div>
-                                </div>
-                                <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-xl"></div>
-                                <div className="absolute -bottom-3 -left-3 h-12 w-12 rounded-full bg-white/10 blur-xl"></div>
-                            </div>
-                        )}
+                    <div className="relative w-full">
+                        <HiMagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <Input
+                            className="pl-9 text-sm"
+                            onChange={e => { setColumnFilters([{ id: 'name', value: truncateString(e.target.value) }]); }}
+                            placeholder="Search by address or name..."
+                        />
                     </div>
 
                     <div className="rounded-2xl border border-slate-200 bg-white shadow-inner overflow-hidden">
