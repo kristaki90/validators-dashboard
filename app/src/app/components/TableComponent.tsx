@@ -44,6 +44,23 @@ export default function TableComponent() {
 
     const columns: ColumnDef<Validator>[] = React.useMemo(() => [
         {
+            id: "rowNumber",
+            header: "#",
+            cell: ({ row, table }) => {
+                const paginatedRows = table.getRowModel().rows;
+                const rowIndexOnPage = paginatedRows.findIndex(
+                    (paginatedRow) => paginatedRow.id === row.id,
+                );
+                const rowNumber = rowIndexOnPage + 1;
+                return (
+                    <div className="p-2 text-center font-semibold text-gray-500">
+                        {rowNumber}
+                    </div>
+                );
+            },
+            enableSorting: false,
+        },
+        {
             accessorKey: "name",
             header: "Validator",
             accessorFn: (row) => row?.name?.toString(),
@@ -65,7 +82,12 @@ export default function TableComponent() {
                         />
                     )}
                     <div className="p-2 flex flex-col w-full justify-left items-start">
-                        <div className="font-bold">{truncateString(row.getValue("name"))}</div>
+                        <div className="font-bold flex items-center gap-2">
+                            {truncateString(row.getValue("name"))}
+                            <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-500">
+                                #{row.original.rank}
+                            </span>
+                        </div>
                         <div className="lowercase">{truncateString(row.original.address)}</div>
                     </div>
                 </div>

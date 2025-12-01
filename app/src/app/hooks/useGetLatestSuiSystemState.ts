@@ -36,6 +36,22 @@ export const useGetLatestSuiSystemState = () => {
             (data) => mapValidator(data, apyResp.apys, systemContext),
           );
 
+          const rankedValidators = (() => {
+            const sortedByScore = [...validatorObjects].sort(
+              (a, b) => Number(b.scoring) - Number(a.scoring),
+            );
+
+            const rankByAddress = new Map<string, number>();
+            sortedByScore.forEach((validator, index) => {
+              rankByAddress.set(validator.address, index + 1);
+            });
+
+            return validatorObjects.map((validator) => ({
+              ...validator,
+              rank: rankByAddress.get(validator.address) ?? 0,
+            }));
+          })();
+
           const sumApy: number = apyResp.apys.reduce((sum, apy) => sum + apy.apy, 0);
           const avgApy: number = sumApy / apyResp.apys.length;
 
@@ -44,11 +60,11 @@ export const useGetLatestSuiSystemState = () => {
             avgAPY: avgApy,
             totalStaked: mistToSui(Number(resp.totalStake)),
             nextEpochReferenceGasPrice: Number(resp.referenceGasPrice),
-            activeValidators: validatorObjects,
+            activeValidators: rankedValidators,
           };
 
           setSuiSystemState(suiSystemState);
-          setValidators(validatorObjects);
+          setValidators(rankedValidators);
           setSystemContext(systemContext);
 
           setIsLoading(false);

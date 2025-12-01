@@ -2,6 +2,7 @@ export interface Validator {
     name: string
     imageUrl: string
     address: string
+    rank: number
     stake: string
     nextEpochStake: string
     currentEpochGasPrice: string
