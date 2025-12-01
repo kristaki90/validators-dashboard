@@ -4,8 +4,8 @@ import TitleComponent from "@/app/components/TitleComponent";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-400">
-      <div className=" bg-slate-500">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+      <div>
         <TitleComponent title="Current Validator Data" /></div>
       <div className="container mx-auto p-7">
         <InfoComponent />
