@@ -131,16 +131,21 @@ export default function StakingRewardsComponent(props: { address: string }) {
                                 <label htmlFor="stake" className="text-xs font-semibold uppercase tracking-wide text-white/80">
                                     Stake Amount (SUI)
                                 </label>
-                                <Input
-                                    id="stake"
-                                    type="text"
-                                    inputMode="numeric"
-                                    disabled={!props.address}
-                                    value={formattedStakeInput}
-                                    onChange={handleChange}
-                                    placeholder="e.g. 10,000"
-                                    className="mt-1 text-base bg-white/95 text-slate-900"
-                                />
+                                <div className="relative mt-1">
+                                    <Input
+                                        id="stake"
+                                        type="text"
+                                        inputMode="numeric"
+                                        disabled={!props.address}
+                                        value={formattedStakeInput}
+                                        onChange={handleChange}
+                                        placeholder="e.g. 10,000"
+                                        className="text-base bg-white/95 text-slate-900 pr-12"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 pointer-events-none">
+                                        SUI
+                                    </span>
+                                </div>
                             </div>
                             <Button
                                 size="lg"

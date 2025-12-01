@@ -152,7 +152,7 @@ export default function TableComponent() {
                         <div className="p-2 flex flex-col w-full justify-left items-start min-w-0">
                             <div className="font-bold flex items-center gap-2 flex-wrap w-full">
                                 <span className="truncate">{truncateString(row.getValue("name"))}</span>
-                                <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-500 flex-shrink-0">
+                                <span className="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-2 py-0.5 text-xs font-bold text-white flex-shrink-0 shadow-sm">
                                     #{row.original.rank}
                                 </span>
                                 {safety.hasIssues && (
@@ -197,6 +197,10 @@ export default function TableComponent() {
         {
             id: "historicalScore",
             header: "Historical Score",
+            accessorFn: (row) => {
+                const score = historicalScores[row.address];
+                return score !== undefined ? score : -1;
+            },
             cell: ({ row }) => {
                 const historicalScore = historicalScores[row.original.address];
                 if (historicalScore === undefined) {
@@ -213,11 +217,6 @@ export default function TableComponent() {
                 );
             },
             enableSorting: true,
-            sortingFn: (rowA, rowB) => {
-                const scoreA = historicalScores[rowA.original.address] ?? -1;
-                const scoreB = historicalScores[rowB.original.address] ?? -1;
-                return scoreA - scoreB;
-            },
         },
         {
             accessorKey: "stake",
