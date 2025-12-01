@@ -7,10 +7,11 @@ import { ValidatorInfo } from "../types/ValidatorInfo";
 import { useEffect, useMemo } from "react";
 import { useGetLatestSuiSystemState } from "../hooks/useGetLatestSuiSystemState";
 import { mistToSui } from "../helpers/suiConversion";
+import { safetyIssues } from "../helpers/safetyIssues";
 
 export default function ValidatorInfoComponent(props: { address: string }) {
     const { validatorInfo, isLoading } = useGetValidatorInfo(props.address);
-    const { validators, isLoading: isSystemStateLoading } = useGetLatestSuiSystemState();
+    const { validators, isLoading: isSystemStateLoading, systemContext } = useGetLatestSuiSystemState();
 
     console.log(validatorInfo);
     let data: ValidatorInfo | null = validatorInfo;
@@ -35,11 +36,40 @@ export default function ValidatorInfoComponent(props: { address: string }) {
         ? `${(Number(validatorStakeInfo.stakeSharePercentage) * 100).toFixed(2)}% Pool Share`
         : null;
 
+    const safety = useMemo(() => {
+        if (!validatorStakeInfo || !systemContext) {
+            return { hasIssues: false, issues: [], messages: [] };
+        }
+        return safetyIssues(validatorStakeInfo, systemContext);
+    }, [validatorStakeInfo, systemContext]);
+
     return (
         <div className="my-7">
             {(!data && isLoading) && <Spinner />}
             {!isLoading && data && (
                 <div className="space-y-6">
+                    {safety.hasIssues && (
+                        <section className="rounded-2xl border-2 border-red-600 bg-gradient-to-br from-red-50 to-red-100 p-6 shadow-xl">
+                            <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0">
+                                    <div className="rounded-full bg-gradient-to-br from-red-600 to-red-700 p-2.5 shadow-lg border border-red-800/30">
+                                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-bold text-red-900 mb-2">⚠️ Safety Alert</h3>
+                                    <p className="text-sm text-red-800 mb-2 font-medium">This validator has the following safety concerns:</p>
+                                    <ul className="list-disc list-inside space-y-1">
+                                        {safety.messages.map((message, index) => (
+                                            <li key={index} className="text-sm text-red-800 font-medium">{message}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+                    )}
                     <section className="rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-2xl">
                         <div className="p-6 md:p-8 flex flex-col gap-6">
                             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
