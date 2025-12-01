@@ -41,7 +41,7 @@ export function safetyIssues(validator: Validator, systemContext: SystemContext 
     const commissionRateDecimal = commissionRateBps / 10000; // Convert from basis points to decimal (1,000 bps = 0.10 = 10%)
     if (commissionRateDecimal > 0.10) {
         issues.push("high_commission");
-        messages.push(`Commission ${(commissionRateDecimal * 100).toFixed(2)}% > 10%`);
+        messages.push(`Commission ${(commissionRateDecimal * 100)}% > 10%`);
     }
 
     // Check if withdrawals > 15% of pool

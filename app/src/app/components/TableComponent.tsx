@@ -48,6 +48,25 @@ const getScoreBadge = (score: number) => {
     return { label: "Watch", bg: "bg-rose-100", text: "text-rose-700" }
 }
 
+const ValidatorImage = ({ imageUrl, name }: { imageUrl: string; name: string }) => {
+    const [imageError, setImageError] = useState(false);
+
+    if (imageError || !imageUrl) {
+        return null;
+    }
+
+    return (
+        <Image
+            src={imageUrl}
+            alt={name}
+            className="rounded-full mr-4 flex-shrink-0"
+            width={40}
+            height={40}
+            onError={() => setImageError(true)}
+        />
+    );
+}
+
 export default function TableComponent() {
     const router = useRouter()
 
@@ -138,17 +157,10 @@ export default function TableComponent() {
             },
             cell: ({ row }) => {
                 const safety = safetyIssues(row.original, systemContext);
+
                 return (
                     <div className="p-2 flex flex-row w-full justify-left items-start min-w-0">
-                        {row.original.imageUrl && (
-                            <Image
-                                src={row.original.imageUrl}
-                                alt={row.original.name}
-                                className="rounded-full mr-4 flex-shrink-0"
-                                width={40}
-                                height={40}
-                            />
-                        )}
+                        <ValidatorImage imageUrl={row.original.imageUrl} name={row.original.name} />
                         <div className="p-2 flex flex-col w-full justify-left items-start min-w-0">
                             <div className="font-bold flex items-center gap-2 flex-wrap w-full">
                                 <span className="truncate">{truncateString(row.getValue("name"))}</span>
