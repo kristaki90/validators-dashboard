@@ -8,12 +8,17 @@ export const mapValidator = (validator: SuiValidatorSummary, apys: ValidatorApy[
   const validatorApy = apys.filter((apy) =>
     apy.address == validator.suiAddress);
 
+  const totalStake = Number(systemContext.totalStake);
+  const validatorStake = Number(validator.stakingPoolSuiBalance);
+  const stakeSharePercentage = totalStake > 0 ? validatorStake / totalStake : 0;
+
   const mappedValidator = {
     name: validator.name,
     imageUrl: validator.imageUrl,
     address: validator.suiAddress,
     rank: 0,
     stake: validator.stakingPoolSuiBalance,
+    stakeSharePercentage,
     nextEpochStake: validator.nextEpochStake,
     currentEpochGasPrice: validator.gasPrice,
     nextEpochGasPrice: validator.nextEpochGasPrice,

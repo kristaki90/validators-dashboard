@@ -111,6 +111,16 @@ export default function TableComponent() {
             enableSorting: true,
         },
         {
+            accessorKey: "stakeSharePercentage",
+            header: "Pool Share %",
+            cell: ({ row }) => (
+                <div className="capitalize font-bold">
+                    {(Number(row.getValue("stakeSharePercentage")) * 100).toFixed(2)}%
+                </div>
+            ),
+            enableSorting: true,
+        },
+        {
             accessorKey: "nextEpochStake",
             header: "Next Epoch Stake",
             cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">

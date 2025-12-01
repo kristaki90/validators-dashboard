@@ -4,6 +4,7 @@ export interface Validator {
     address: string
     rank: number
     stake: string
+    stakeSharePercentage: number
     nextEpochStake: string
     currentEpochGasPrice: string
     nextEpochGasPrice: string
