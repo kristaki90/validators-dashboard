@@ -22,7 +22,7 @@ export function NavMenu() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-purple-200/50 bg-white/40 backdrop-blur-xl shadow-sm">
-            <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="container mx-auto flex w-full flex-col gap-3 px-7 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <Link href="/" className="flex items-center gap-2 text-slate-900">
                     <div className="text-lg font-semibold tracking-tight">Sui Validators</div>
                     <span className="rounded-full bg-indigo-100 px-3 py-0.5 text-xs font-semibold uppercase text-indigo-600">
