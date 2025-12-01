@@ -3,45 +3,84 @@
 import { useGetLatestSuiSystemState } from "@/app/hooks/useGetLatestSuiSystemState";
 import * as React from "react"
 
+const formatNumber = (value: number, options?: Intl.NumberFormatOptions) =>
+    new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 0,
+        ...options,
+    }).format(value);
+
 export default function InfoComponent() {
     const { suiSystemState, isLoading } = useGetLatestSuiSystemState();
 
+    const metricCards = React.useMemo(() => {
+        if (!suiSystemState) {
+            return [];
+        }
+
+        return [
+            {
+                label: "Active Validators",
+                value: formatNumber(suiSystemState.activeValidators.length),
+                hint: "Currently participating in consensus",
+            },
+            {
+                label: "Total Staked",
+                value: `${formatNumber(suiSystemState.totalStaked)} SUI`,
+                hint: "Sum of delegated stake",
+            },
+        ];
+    }, [suiSystemState]);
+
+    if (isLoading || !suiSystemState) {
+        return (
+            <section className="my-10">
+                <div className="rounded-3xl border border-slate-100 bg-white/80 p-8 text-center text-slate-500 shadow-2xl">
+                    Loading live network stats...
+                </div>
+            </section>
+        );
+    }
+
     return (
-        <div className="my-7">
-            {!isLoading && suiSystemState &&
-                <div className="w-full">
-                    <div className="flex flex-col xl:flex-row w-full justify-between space-x-4">
-                        <div className="flex flex-col md:flex-row w-full justify-between space-x-4">
-                            <div className="w-full mb-2 min-h-40 overflow-hidden rounded-md border p-7 bg-white shadow-lg">
-                                <div className="p-2 text-gray-500 text-sm font-bold">  Epoch </div>
-                                <div className="p-2 text-2xl font-bold">  {suiSystemState?.epoch} </div>
-                            </div>
-                            <div className="w-full mb-2 min-h-40 overflow-hidden rounded-md border p-7 bg-white shadow-lg">
-                                <div className="p-2  text-gray-500 text-sm font-bold">  Avg. APY </div>
-                                <div className="p-2 text-2xl font-bold">  {(suiSystemState.avgAPY * 100).toFixed(3)}% </div>
-                            </div>
+        <section className="my-10">
+            <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-2xl">
+                <div className="space-y-6 p-6">
+                    <div className="flex flex-col gap-6 px-2 py-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <p className="text-xs uppercase tracking-[0.4em] text-white/70">Network Snapshot</p>
+                            <h3 className="mt-1 text-3xl font-extrabold tracking-tight">
+                                Epoch #{suiSystemState.epoch}
+                            </h3>
+                            <p className="mt-2 text-sm text-white/85">
+                                Monitoring validator performance and rewards in real time.
+                            </p>
                         </div>
-                        <div className="flex flex-col md:flex-row w-full justify-between space-x-4">
-                            <div className="w-full mb-2 min-h-40 overflow-hidden rounded-md border p-7 bg-white shadow-lg">
-                                <div className="p-2 text-gray-500 text-sm font-bold">  Total Staked </div>
-
-                                <div className="p-2 flex flex-row w-full justify-left items-end">
-                                    <div className=" text-2xl font-bold">  {Math.floor(suiSystemState.totalStaked).toLocaleString()} </div>
-                                    <div className=" text-gray-500 text-sm font-bold">  .{(suiSystemState.totalStaked % 2).toFixed(2).substring(2)} SUI </div>
-                                </div>
+                        <div className="flex flex-col gap-4 text-center sm:flex-row sm:items-center sm:gap-6">
+                            <div className="rounded-2xl bg-white/10 px-6 py-4 backdrop-blur">
+                                <p className="text-xs uppercase tracking-[0.3em] text-white/70">Avg APY</p>
+                                <p className="text-2xl font-semibold">{(suiSystemState.avgAPY * 100).toFixed(2)}%</p>
                             </div>
-                            <div className="w-full mb-2 min-h-40 overflow-hidden rounded-md border p-7 bg-white shadow-lg text-align-left">
-                                <div className="p-2 text-gray-500 text-sm font-bold">  Next Epoch Reference Gas Price </div>
-
-                                <div className="p-2 flex flex-row w-full justify-left items-end">
-                                    <div className="text-2xl font-bold ">  {suiSystemState?.nextEpochReferenceGasPrice.toLocaleString()} </div>
-                                    <div className="pl-1 text-gray-500 text-sm font-bold">  MIST </div>
-                                </div>
+                            <div className="rounded-2xl bg-white/10 px-6 py-4 backdrop-blur">
+                                <p className="text-xs uppercase tracking-[0.3em] text-white/70">Next Gas Price</p>
+                                <p className="text-2xl font-semibold">{suiSystemState.nextEpochReferenceGasPrice.toLocaleString()} MIST</p>
                             </div>
                         </div>
                     </div>
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {metricCards.map((card) => (
+                            <div
+                                key={card.label}
+                                className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/15"
+                            >
+                                <p className="text-xs uppercase tracking-wide text-white/70">{card.label}</p>
+                                <p className="mt-2 text-3xl font-bold">{card.value}</p>
+                                <p className="mt-1 text-sm text-white/80">{card.hint}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            }
-        </div>
+            </div>
+        </section>
     );
 }
