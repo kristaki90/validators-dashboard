@@ -21,7 +21,7 @@ export function NavMenu() {
     const pathname = usePathname()
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/40 backdrop-blur-xl shadow-sm">
+        <header className="sticky top-0 z-50 w-full border-b border-purple-200/50 bg-white/40 backdrop-blur-xl shadow-sm">
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <Link href="/" className="flex items-center gap-2 text-slate-900">
                     <div className="text-lg font-semibold tracking-tight">Sui Validators</div>
