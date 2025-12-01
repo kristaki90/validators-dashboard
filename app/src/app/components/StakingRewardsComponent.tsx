@@ -12,6 +12,7 @@ export default function StakingRewardsComponent(props: { address: string }) {
     const [isLoading, setIsLoading] = useState(false);
     const [stakeInput, setStakeInput] = useState<string>("");
     const [suiPrice, setSuiPrice] = useState<number | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const normalizedStake = useMemo(() => {
         const numericStake = Number(stakeInput.replace(/,/g, ''));
@@ -62,15 +63,24 @@ export default function StakingRewardsComponent(props: { address: string }) {
         }
 
         setIsLoading(true);
+        setError(null);
+        setStakingRewards(undefined);
         fetch(`https://sui-validators-dashboard.onrender.com/api/simulate-staking-rewards/${props.address}/${normalizedStake}`)
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to calculate rewards: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then((data) => {
                 setIsLoading(false);
                 setStakingRewards(data);
+                setError(null);
             })
             .catch((err) => {
                 setIsLoading(false);
-                console.log(err.message);
+                setError(err.message || 'An error occurred while calculating rewards. Please try again.');
+                console.error("Error calculating rewards:", err);
             });
     };
 
@@ -164,7 +174,23 @@ export default function StakingRewardsComponent(props: { address: string }) {
                                 </div>
                             )}
 
-                            {!isLoading && stakingRewards && (
+                            {!isLoading && error && (
+                                <div className="rounded-xl border-2 border-red-400 bg-red-50 p-6">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex-shrink-0">
+                                            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-red-900 mb-1">Error</h3>
+                                            <p className="text-sm text-red-700">{error}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!isLoading && !error && stakingRewards && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {rewardCards.map((card) => (
                                         <div key={card.label} className="rounded-2xl bg-white text-slate-900 p-4 shadow-md">
@@ -179,7 +205,7 @@ export default function StakingRewardsComponent(props: { address: string }) {
                                 </div>
                             )}
 
-                            {!isLoading && !stakingRewards && (
+                            {!isLoading && !error && !stakingRewards && (
                                 <div className="rounded-xl bg-white/20 p-6 text-center text-white/80">
                                     Enter a stake amount to see projected rewards.
                                 </div>
