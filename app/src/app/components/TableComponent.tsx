@@ -29,10 +29,11 @@ import { truncateString } from "@/app/helpers/truncateString"
 import { mistToSui } from "@/app/helpers/suiConversion"
 import Image from "next/image";
 import { Input } from "./ui/input";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
 import { HiMagnifyingGlass } from "react-icons/hi2";
 import { safetyIssues } from "../helpers/safetyIssues";
+import { HistoricalScore } from "../types/HistoricalScore";
 
 const getScoreBadge = (score: number) => {
     if (score >= 80) {
@@ -51,11 +52,33 @@ export default function TableComponent() {
     const router = useRouter()
 
     const { validators, isLoading, systemContext } = useGetLatestSuiSystemState();
+    const [historicalScores, setHistoricalScores] = useState<Record<string, number>>({});
+    const [isLoadingHistorical, setIsLoadingHistorical] = useState(false);
     let data: Validator[] = validators;
 
     useEffect(() => {
         data = validators;
     }, [!validators]);
+
+    useEffect(() => {
+        const fetchHistoricalScores = async () => {
+            setIsLoadingHistorical(true);
+            try {
+                const response = await fetch('https://sui-validators-dashboard.onrender.com/api/validator-scores');
+                const data: HistoricalScore[] = await response.json();
+                const scoreMap: Record<string, number> = {};
+                data.forEach((item) => {
+                    scoreMap[item.address] = item.historicalScore;
+                });
+                setHistoricalScores(scoreMap);
+            } catch (err) {
+                console.error("Error fetching historical scores:", err);
+            } finally {
+                setIsLoadingHistorical(false);
+            }
+        };
+        fetchHistoricalScores();
+    }, []);
 
     const leaderboardStats = React.useMemo(() => {
         if (!validators?.length) {
@@ -172,6 +195,31 @@ export default function TableComponent() {
             enableSorting: true,
         },
         {
+            id: "historicalScore",
+            header: "Historical Score",
+            cell: ({ row }) => {
+                const historicalScore = historicalScores[row.original.address];
+                if (historicalScore === undefined) {
+                    return <div className="text-gray-400">-</div>;
+                }
+                const badge = getScoreBadge(historicalScore);
+                return (
+                    <div className="flex items-center gap-2">
+                        <span className="font-semibold text-slate-900">{historicalScore.toFixed(2)}%</span>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge.bg} ${badge.text}`}>
+                            {badge.label}
+                        </span>
+                    </div>
+                );
+            },
+            enableSorting: true,
+            sortingFn: (rowA, rowB) => {
+                const scoreA = historicalScores[rowA.original.address] ?? -1;
+                const scoreB = historicalScores[rowB.original.address] ?? -1;
+                return scoreA - scoreB;
+            },
+        },
+        {
             accessorKey: "stake",
             header: "Stake",
             cell: ({ row }) => <div className="p-2 flex flex-row w-full justify-left items-end">
@@ -188,6 +236,14 @@ export default function TableComponent() {
                     {(Number(row.getValue("stakeSharePercentage")) * 100).toFixed(2)}%
                 </div>
             ),
+            enableSorting: true,
+        },
+        {
+            accessorKey: "commissionRate",
+            header: "Commission Rate",
+            // Commission rate is in basis points: 100 bps = 1%, 1,000 bps = 10%
+            // To display as percentage: divide by 100 (1,000 bps / 100 = 10%)
+            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("commissionRate")) / 100)}%</div>,
             enableSorting: true,
         },
         {
@@ -217,15 +273,7 @@ export default function TableComponent() {
             </div>,
             enableSorting: true,
         },
-        {
-            accessorKey: "commissionRate",
-            header: "Commission Rate",
-            // Commission rate is in basis points: 100 bps = 1%, 1,000 bps = 10%
-            // To display as percentage: divide by 100 (1,000 bps / 100 = 10%)
-            cell: ({ row }) => <div className="capitalize font-bold">{(Number(row.getValue("commissionRate")) / 100)}%</div>,
-            enableSorting: true,
-        },
-    ], [systemContext])
+    ], [systemContext, historicalScores])
 
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0,

@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils"
 
 const navLinks = [
     { href: "/", label: "Overview" },
-    { href: "/historical-data", label: "Historical Data" },
 ]
 
 export function NavMenu() {
