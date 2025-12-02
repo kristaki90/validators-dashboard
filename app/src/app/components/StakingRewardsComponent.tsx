@@ -13,6 +13,7 @@ export default function StakingRewardsComponent(props: { address: string }) {
     const [stakeInput, setStakeInput] = useState<string>("");
     const [suiPrice, setSuiPrice] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isFocused, setIsFocused] = useState(false);
 
     const normalizedStake = useMemo(() => {
         const numericStake = Number(stakeInput.replace(/,/g, ''));
@@ -21,6 +22,10 @@ export default function StakingRewardsComponent(props: { address: string }) {
 
     const formattedStakeInput = useMemo(() => {
         if (!stakeInput) return '';
+        // Don't format while user is typing - only format when not focused
+        if (isFocused) {
+            return stakeInput;
+        }
         const numericValue = stakeInput.replace(/,/g, '');
         if (!numericValue) return '';
         if (numericValue.includes('.')) {
@@ -32,7 +37,7 @@ export default function StakingRewardsComponent(props: { address: string }) {
         const num = Number(numericValue);
         if (isNaN(num) || num === 0) return numericValue;
         return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    }, [stakeInput]);
+    }, [stakeInput, isFocused]);
 
     useEffect(() => {
         const fetchSuiPrice = async () => {
@@ -55,6 +60,14 @@ export default function StakingRewardsComponent(props: { address: string }) {
         if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
             setStakeInput(rawValue);
         }
+    };
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
     };
 
     const calculateRewards = () => {
@@ -149,6 +162,8 @@ export default function StakingRewardsComponent(props: { address: string }) {
                                         disabled={!props.address}
                                         value={formattedStakeInput}
                                         onChange={handleChange}
+                                        onFocus={handleFocus}
+                                        onBlur={handleBlur}
                                         placeholder="e.g. 10,000"
                                         className="text-base bg-white/95 text-slate-900 pr-12"
                                     />
