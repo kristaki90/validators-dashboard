@@ -82,7 +82,6 @@ export default function ValidatorInfoComponent(props: { address: string }) {
                                     <div className="rounded-xl bg-white/15 px-6 py-4 backdrop-blur">
                                         <p className="text-xs uppercase tracking-wide text-white/80">Stake</p>
                                         <p className="text-2xl font-bold">{formattedStake}</p>
-                                        <p className="text-sm text-white/80">{formattedStakeShare}</p>
                                     </div>
                                 )}
                             </div>
@@ -99,7 +98,7 @@ export default function ValidatorInfoComponent(props: { address: string }) {
                                 {(validatorStakeInfo && !isSystemStateLoading) && (
                                     <div className="rounded-xl bg-white/10 p-4 backdrop-blur">
                                         <p className="text-xs uppercase tracking-wide text-white/70">Pool Share</p>
-                                        <p className="text-3xl font-bold mt-2">{formattedStakeShare}</p>
+                                        <p className="text-3xl font-bold mt-2">{(Number(validatorStakeInfo.stakeSharePercentage) * 100).toFixed(2)}%</p>
                                     </div>
                                 )}
                             </div>
