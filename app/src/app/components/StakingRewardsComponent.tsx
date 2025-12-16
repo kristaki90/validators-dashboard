@@ -6,19 +6,27 @@ import { StakingRewards } from "../types/StakingRewards";
 import { useMemo, useState, useEffect } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { useGetLatestSuiSystemState } from "../hooks/useGetLatestSuiSystemState";
 
 export default function StakingRewardsComponent(props: { address: string }) {
     const [stakingRewards, setStakingRewards] = useState<StakingRewards>();
     const [isLoading, setIsLoading] = useState(false);
     const [stakeInput, setStakeInput] = useState<string>("");
+    const [epochInput, setEpochInput] = useState<string>("");
     const [suiPrice, setSuiPrice] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isFocused, setIsFocused] = useState(false);
+    const { suiSystemState } = useGetLatestSuiSystemState();
 
     const normalizedStake = useMemo(() => {
         const numericStake = Number(stakeInput.replace(/,/g, ''));
         return Number.isFinite(numericStake) && numericStake > 0 ? numericStake : null;
     }, [stakeInput]);
+
+    const normalizedEpoch = useMemo(() => {
+        const numericEpoch = Number(epochInput.replace(/,/g, ''));
+        return Number.isFinite(numericEpoch) && numericEpoch >= 0 && Number.isInteger(numericEpoch) ? numericEpoch : null;
+    }, [epochInput]);
 
     const formattedStakeInput = useMemo(() => {
         if (!stakeInput) return '';
@@ -54,11 +62,19 @@ export default function StakingRewardsComponent(props: { address: string }) {
         fetchSuiPrice();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleStakeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = e.target.value.replace(/,/g, '');
         // Only allow numbers and decimal point
         if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
             setStakeInput(rawValue);
+        }
+    };
+
+    const handleEpochChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const rawValue = e.target.value.replace(/,/g, '');
+        // Only allow positive integers
+        if (rawValue === '' || /^\d+$/.test(rawValue)) {
+            setEpochInput(rawValue);
         }
     };
 
@@ -71,14 +87,14 @@ export default function StakingRewardsComponent(props: { address: string }) {
     };
 
     const calculateRewards = () => {
-        if (!normalizedStake) {
+        if (!normalizedStake || normalizedEpoch === null) {
             return;
         }
 
         setIsLoading(true);
         setError(null);
         setStakingRewards(undefined);
-        fetch(`https://sui-validators-dashboard.onrender.com/api/simulate-staking-rewards/${props.address}/${normalizedStake}`)
+        fetch(`https://sui-validators-dashboard.onrender.com/api/simulate-staking-rewards/${props.address}/${normalizedStake}/${normalizedEpoch}`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`Failed to calculate rewards: ${response.status} ${response.statusText}`);
@@ -144,7 +160,7 @@ export default function StakingRewardsComponent(props: { address: string }) {
                         <p className="text-xs uppercase tracking-[0.3em] text-white/60">Rewards Simulator</p>
                         <h2 className="mt-2 text-3xl font-bold tracking-tight">Calculate Potential SUI Earnings</h2>
                         <p className="mt-2 text-sm text-white/80 max-w-2xl">
-                            Enter a stake amount to model projected rewards for this validator based on recent network data.
+                            Enter a stake amount and start epoch to model projected rewards for this validator based on recent network data.
                         </p>
                     </div>
 
@@ -161,7 +177,7 @@ export default function StakingRewardsComponent(props: { address: string }) {
                                         inputMode="numeric"
                                         disabled={!props.address}
                                         value={formattedStakeInput}
-                                        onChange={handleChange}
+                                        onChange={handleStakeChange}
                                         onFocus={handleFocus}
                                         onBlur={handleBlur}
                                         placeholder="e.g. 10,000"
@@ -172,11 +188,28 @@ export default function StakingRewardsComponent(props: { address: string }) {
                                     </span>
                                 </div>
                             </div>
+                            <div className="flex-1">
+                                <label htmlFor="epoch" className="text-xs font-semibold uppercase tracking-wide text-white/80">
+                                    Start Epoch
+                                </label>
+                                <div className="relative mt-1">
+                                    <Input
+                                        id="epoch"
+                                        type="text"
+                                        inputMode="numeric"
+                                        disabled={!props.address}
+                                        value={epochInput}
+                                        onChange={handleEpochChange}
+                                        placeholder={suiSystemState?.epoch ? `Current: ${suiSystemState.epoch}` : "e.g. 100"}
+                                        className="text-base bg-white/95 text-slate-900"
+                                    />
+                                </div>
+                            </div>
                             <Button
                                 size="lg"
                                 className="md:w-auto bg-white text-slate-900 hover:bg-slate-100"
                                 onClick={calculateRewards}
-                                disabled={isLoading || !normalizedStake}
+                                disabled={isLoading || !normalizedStake || normalizedEpoch === null}
                             >
                                 {isLoading ? "Calculating..." : "Calculate rewards"}
                             </Button>
@@ -222,7 +255,7 @@ export default function StakingRewardsComponent(props: { address: string }) {
 
                             {!isLoading && !error && !stakingRewards && (
                                 <div className="rounded-xl bg-white/20 p-6 text-center text-white/80">
-                                    Enter a stake amount to see projected rewards.
+                                    Enter a stake amount and start epoch to see projected rewards.
                                 </div>
                             )}
                         </div>
