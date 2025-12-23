@@ -30,7 +30,6 @@ import {
 import { SlArrowUp, SlArrowDown } from "react-icons/sl";
 import Image from "next/image";
 import { useRouter } from 'next/navigation'
-import { HiMagnifyingGlass } from "react-icons/hi2";
 import { truncateString } from "@/app/helpers/truncateString";
 
 const ValidatorImage = ({ imageUrl, name }: { imageUrl: string; name: string }) => {
@@ -156,6 +155,7 @@ export default function AllValidatorsCalculatorComponent() {
                 }
 
                 // Normalize the data structure - ensure each result has a rewards object
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 processedData.results = processedData.results.map((item: any) => {
                     // If rewards fields are directly on the item, wrap them in a rewards object
                     if (!item.rewards && (item.gainSui !== undefined || item.finalAmount !== undefined)) {
@@ -327,6 +327,7 @@ export default function AllValidatorsCalculatorComponent() {
         },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleRowClick = (row: any) => {
         router.push(`validator/${row.original.address}`);
     };
