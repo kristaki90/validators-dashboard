@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import * as d3 from "d3"
 import { Spinner } from "./ui/spinner"
 import { ApyDataPoint } from "../types/ApyData"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs"
 
 interface ApyChartComponentProps {
     address: string
@@ -16,6 +17,7 @@ export default function ApyChartComponent({ address }: ApyChartComponentProps) {
     const [apyData, setApyData] = useState<ApyDataPoint[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [activeChartTab, setActiveChartTab] = useState("apy")
 
     useEffect(() => {
         const fetchApyData = async () => {
@@ -503,36 +505,45 @@ export default function ApyChartComponent({ address }: ApyChartComponentProps) {
     }
 
     return (
-        <div className="my-10 space-y-6">
-            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
-                <div className="mb-6">
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
-                    <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Over Time</h2>
-                    <p className="mt-2 text-sm text-slate-500">
-                        Historical APY performance across epochs
-                    </p>
-                </div>
-                <div className="overflow-x-auto">
-                    <svg ref={areaChartRef} className="w-full"></svg>
-                </div>
-            </div>
+        <div className="my-10">
+            <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="flex flex-col">
+                <TabsList orientation="horizontal" className="flex-shrink-0 bg-white/60 backdrop-blur rounded-2xl p-2 shadow-lg border border-slate-200/50 mb-6">
+                    <TabsTrigger value="apy" label="APY" orientation="horizontal" />
+                </TabsList>
+                <TabsContent value="apy" className="min-w-0 flex-1">
+                    <div className="space-y-6">
+                        <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
+                            <div className="mb-6">
+                                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
+                                <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Over Time</h2>
+                                <p className="mt-2 text-sm text-slate-500">
+                                    Historical APY performance across epochs
+                                </p>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <svg ref={areaChartRef} className="w-full"></svg>
+                            </div>
+                        </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
-                <div className="mb-6">
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
-                    <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Contour</h2>
-                    <p className="mt-2 text-sm text-slate-500">
-                        Contour visualization showing APY intensity and distribution
-                    </p>
-                </div>
-                <div className="overflow-x-auto">
-                    <svg ref={contourChartRef} className="w-full"></svg>
-                </div>
-            </div>
+                        <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
+                            <div className="mb-6">
+                                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
+                                <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Contour</h2>
+                                <p className="mt-2 text-sm text-slate-500">
+                                    Contour visualization showing APY intensity and distribution
+                                </p>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <svg ref={contourChartRef} className="w-full"></svg>
+                            </div>
+                        </div>
 
-            <div className="text-xs text-slate-500 text-center">
-                Showing {apyData.length} data point{apyData.length !== 1 ? 's' : ''} from epoch {apyData[0]?.epoch} to {apyData[apyData.length - 1]?.epoch}
-            </div>
+                        <div className="text-xs text-slate-500 text-center">
+                            Showing {apyData.length} data point{apyData.length !== 1 ? 's' : ''} from epoch {apyData[0]?.epoch} to {apyData[apyData.length - 1]?.epoch}
+                        </div>
+                    </div>
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }

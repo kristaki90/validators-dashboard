@@ -30,11 +30,17 @@ export function Tabs({ value, onValueChange, children, className }: TabsProps) {
 interface TabsListProps {
     children: React.ReactNode
     className?: string
+    orientation?: "vertical" | "horizontal"
 }
 
-export function TabsList({ children, className }: TabsListProps) {
+export function TabsList({ children, className, orientation = "vertical" }: TabsListProps) {
     return (
-        <div className={cn("flex flex-col gap-2", className)}>
+        <div className={cn(
+            orientation === "horizontal"
+                ? "flex flex-row gap-2"
+                : "flex flex-col gap-2",
+            className
+        )}>
             {children}
         </div>
     )
@@ -42,16 +48,41 @@ export function TabsList({ children, className }: TabsListProps) {
 
 interface TabsTriggerProps {
     value: string
-    children: React.ReactNode
+    children?: React.ReactNode
     className?: string
     title?: string
+    label?: string
+    orientation?: "vertical" | "horizontal"
 }
 
-export function TabsTrigger({ value, children, className, title }: TabsTriggerProps) {
+export function TabsTrigger({ value, children, className, title, label, orientation = "vertical" }: TabsTriggerProps) {
+    // For horizontal tabs, use label if provided, otherwise use children
+    const displayContent = orientation === "horizontal" ? (label || children || "") : (children || "")
     const context = React.useContext(TabsContext)
     if (!context) throw new Error("TabsTrigger must be used within Tabs")
 
     const isActive = context.value === value
+
+    if (orientation === "horizontal") {
+        return (
+            <button
+                type="button"
+                onClick={() => context.onValueChange(value)}
+                className={cn(
+                    "relative flex items-center justify-center px-4 py-2 rounded-lg transition-all",
+                    "hover:bg-gradient-to-br hover:from-indigo-500/20 hover:to-purple-500/20",
+                    "focus:outline-none focus:ring-2 focus:ring-indigo-500/50",
+                    isActive
+                        ? "bg-gradient-to-br from-indigo-500/30 to-purple-500/30 text-white shadow-lg border border-white/20"
+                        : "text-slate-600 hover:text-slate-900 bg-white/60",
+                    className
+                )}
+                title={title}
+            >
+                {displayContent}
+            </button>
+        )
+    }
 
     return (
         <div className="relative group">
@@ -68,7 +99,7 @@ export function TabsTrigger({ value, children, className, title }: TabsTriggerPr
                     className
                 )}
             >
-                {children}
+                {displayContent}
             </button>
             {title && (
                 <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg">
