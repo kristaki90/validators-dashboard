@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils"
 const navLinks = [
     { href: "/", label: "Overview" },
     { href: "/calculator", label: "Calculator" },
+    { href: "/predictions", label: "Predictions" },
+    { href: "/average-apy", label: "Average APY" },
 ]
 
 export function NavMenu() {

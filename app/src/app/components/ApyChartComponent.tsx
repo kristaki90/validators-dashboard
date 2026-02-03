@@ -5,82 +5,149 @@ import { useEffect, useRef, useState } from "react"
 import * as d3 from "d3"
 import { Spinner } from "./ui/spinner"
 import { ApyDataPoint } from "../types/ApyData"
+import { StakeDataPoint } from "../types/StakeData"
+import { PoolShareDataPoint } from "../types/PoolShareData"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs"
+import { mistToSui } from "../helpers/suiConversion"
 
 interface ApyChartComponentProps {
     address: string
 }
 
+type DataPoint = ApyDataPoint | StakeDataPoint | PoolShareDataPoint
+
 export default function ApyChartComponent({ address }: ApyChartComponentProps) {
-    const areaChartRef = useRef<SVGSVGElement>(null)
-    const contourChartRef = useRef<SVGSVGElement>(null)
+    const apyAreaChartRef = useRef<SVGSVGElement>(null)
+    const apyContourChartRef = useRef<SVGSVGElement>(null)
+    const stakeAreaChartRef = useRef<SVGSVGElement>(null)
+    const poolShareAreaChartRef = useRef<SVGSVGElement>(null)
+
     const [apyData, setApyData] = useState<ApyDataPoint[]>([])
+    const [stakeData, setStakeData] = useState<StakeDataPoint[]>([])
+    const [poolShareData, setPoolShareData] = useState<PoolShareDataPoint[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [activeChartTab, setActiveChartTab] = useState("apy")
 
     useEffect(() => {
-        const fetchApyData = async () => {
+        const fetchAllData = async () => {
             if (!address) return
 
             setIsLoading(true)
             setError(null)
 
             try {
-                const response = await fetch(
+                // Fetch APY data
+                const apyResponse = await fetch(
                     `https://sui-validators-dashboard.onrender.com/api/apy_for_validator/${address}`
                 )
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch APY data: ${response.status} ${response.statusText}`)
+                if (apyResponse.ok) {
+                    const apyData = await apyResponse.json()
+                    let processedApy: ApyDataPoint[] = []
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if (Array.isArray(apyData)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        processedApy = apyData.map((item: any) => ({
+                            epoch: Number(item.epoch || item.epochNumber || 0),
+                            apy: Number(item.apy || item.apyValue || 0),
+                        }))
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    } else if (apyData.data && Array.isArray(apyData.data)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        processedApy = apyData.data.map((item: any) => ({
+                            epoch: Number(item.epoch || item.epochNumber || 0),
+                            apy: Number(item.apy || item.apyValue || 0),
+                        }))
+                    } else if (apyData.epoch && apyData.apy !== undefined) {
+                        processedApy = [{
+                            epoch: Number(apyData.epoch),
+                            apy: Number(apyData.apy),
+                        }]
+                    }
+                    processedApy.sort((a, b) => a.epoch - b.epoch)
+                    setApyData(processedApy)
                 }
 
-                const data = await response.json()
-
-                // Handle different response formats
-                let processedData: ApyDataPoint[] = []
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                if (Array.isArray(data)) {
+                // Fetch Stake data
+                const stakeResponse = await fetch(
+                    `https://sui-validators-dashboard.onrender.com/api/stake_for_validator/${address}`
+                )
+                if (stakeResponse.ok) {
+                    const stakeData = await stakeResponse.json()
+                    let processedStake: StakeDataPoint[] = []
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    processedData = data.map((item: any) => ({
-                        epoch: Number(item.epoch || item.epochNumber || 0),
-                        apy: Number(item.apy || item.apyValue || 0), // Use value as-is, round to 2 decimals
-                    }))
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } else if (data.data && Array.isArray(data.data)) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    processedData = data.data.map((item: any) => ({
-                        epoch: Number(item.epoch || item.epochNumber || 0),
-                        apy: Number(item.apy || item.apyValue || 0),
-                    }))
-                } else if (data.epoch && data.apy !== undefined) {
-                    // Single data point
-                    processedData = [{
-                        epoch: Number(data.epoch),
-                        apy: Number(data.apy),
-                    }]
+                    if (Array.isArray(stakeData)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        processedStake = stakeData.map((item: any) => ({
+                            epoch: Number(item.Epoch || item.epoch || item.epochNumber || 0),
+                            stake: mistToSui(Number(item.Stake || item.stake || item.stakeValue || 0)),
+                        }))
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    } else if (stakeData.data && Array.isArray(stakeData.data)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        processedStake = stakeData.data.map((item: any) => ({
+                            epoch: Number(item.Epoch || item.epoch || item.epochNumber || 0),
+                            stake: mistToSui(Number(item.Stake || item.stake || item.stakeValue || 0)),
+                        }))
+                    } else if ((stakeData.Epoch || stakeData.epoch) && (stakeData.Stake !== undefined || stakeData.stake !== undefined)) {
+                        processedStake = [{
+                            epoch: Number(stakeData.Epoch || stakeData.epoch),
+                            stake: mistToSui(Number(stakeData.Stake || stakeData.stake)),
+                        }]
+                    }
+                    processedStake.sort((a, b) => a.epoch - b.epoch)
+                    setStakeData(processedStake)
                 }
 
-                // Sort by epoch
-                processedData.sort((a, b) => a.epoch - b.epoch)
-                setApyData(processedData)
+                // Fetch Pool Share data
+                const poolShareResponse = await fetch(
+                    `https://sui-validators-dashboard.onrender.com/api/pool_share_for_validator/${address}`
+                )
+                if (poolShareResponse.ok) {
+                    const poolShareData = await poolShareResponse.json()
+                    let processedPoolShare: PoolShareDataPoint[] = []
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if (Array.isArray(poolShareData)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        processedPoolShare = poolShareData.map((item: any) => ({
+                            epoch: Number(item.Epoch || item.epoch || item.epochNumber || 0),
+                            poolShare: Number(item["pool share %"] || item.poolShare || item.poolShareValue || item.poolSharePercentage || 0),
+                        }))
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    } else if (poolShareData.data && Array.isArray(poolShareData.data)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        processedPoolShare = poolShareData.data.map((item: any) => ({
+                            epoch: Number(item.Epoch || item.epoch || item.epochNumber || 0),
+                            poolShare: Number(item["pool share %"] || item.poolShare || item.poolShareValue || item.poolSharePercentage || 0),
+                        }))
+                    } else if ((poolShareData.Epoch || poolShareData.epoch) && (poolShareData["pool share %"] !== undefined || poolShareData.poolShare !== undefined)) {
+                        processedPoolShare = [{
+                            epoch: Number(poolShareData.Epoch || poolShareData.epoch),
+                            poolShare: Number(poolShareData["pool share %"] || poolShareData.poolShare),
+                        }]
+                    }
+                    processedPoolShare.sort((a, b) => a.epoch - b.epoch)
+                    setPoolShareData(processedPoolShare)
+                }
+
+                setIsLoading(false)
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'An error occurred while fetching APY data')
-                console.error("Error fetching APY data:", err)
-            } finally {
+                setError(err instanceof Error ? err.message : 'An error occurred while fetching chart data')
+                console.error("Error fetching chart data:", err)
                 setIsLoading(false)
             }
         }
 
-        fetchApyData()
+        fetchAllData()
     }, [address])
 
     useEffect(() => {
-        if (!areaChartRef.current || !contourChartRef.current || apyData.length === 0) return
+        if (!apyAreaChartRef.current || !apyContourChartRef.current || apyData.length === 0) return
+        if (activeChartTab !== "apy") return // Only render when tab is active
 
         // Clear previous charts
-        d3.select(areaChartRef.current).selectAll("*").remove()
-        d3.select(contourChartRef.current).selectAll("*").remove()
+        d3.select(apyAreaChartRef.current).selectAll("*").remove()
+        d3.select(apyContourChartRef.current).selectAll("*").remove()
 
         // Set up dimensions
         const margin = { top: 20, right: 30, bottom: 50, left: 60 }
@@ -89,7 +156,7 @@ export default function ApyChartComponent({ address }: ApyChartComponentProps) {
 
         // Create SVG for area chart
         const areaSvg = d3
-            .select(areaChartRef.current)
+            .select(apyAreaChartRef.current)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -260,7 +327,7 @@ export default function ApyChartComponent({ address }: ApyChartComponentProps) {
 
         // ===== CONTOUR CHART =====
         const contourSvg = d3
-            .select(contourChartRef.current)
+            .select(apyContourChartRef.current)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -459,8 +526,187 @@ export default function ApyChartComponent({ address }: ApyChartComponentProps) {
             .selectAll("text")
             .style("fill", "#6b7280")
             .style("font-size", "11px")
-    }, [apyData])
+    }, [apyData, activeChartTab])
 
+    // Render Stake chart
+    useEffect(() => {
+        if (!stakeAreaChartRef.current || stakeData.length === 0) return
+        if (activeChartTab !== "stake") return // Only render when tab is active
+
+        d3.select(stakeAreaChartRef.current).selectAll("*").remove()
+
+        const margin = { top: 20, right: 30, bottom: 50, left: 60 }
+        const width = 800 - margin.left - margin.right
+        const height = 400 - margin.top - margin.bottom
+
+        const areaSvg = d3.select(stakeAreaChartRef.current)
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`)
+
+        const xScale = d3.scaleLinear()
+            .domain(d3.extent(stakeData, (d: StakeDataPoint) => d.epoch) as [number, number])
+            .range([0, width])
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(stakeData, (d: StakeDataPoint) => d.stake) || 1000000] as [number, number])
+            .nice()
+            .range([height, 0])
+
+        const line = d3.line()
+            .x((d: StakeDataPoint) => xScale(d.epoch))
+            .y((d: StakeDataPoint) => yScale(d.stake))
+            .curve(d3.curveMonotoneX)
+
+        const area = d3.area()
+            .x((d: StakeDataPoint) => xScale(d.epoch))
+            .y0(height)
+            .y1((d: StakeDataPoint) => yScale(d.stake))
+            .curve(d3.curveMonotoneX)
+
+        // Grid and axes (similar to APY chart)
+        areaSvg.append("g").attr("class", "grid").attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale).tickSize(-height).tickFormat(() => ""))
+            .selectAll("line").attr("stroke", "#e5e7eb").attr("stroke-dasharray", "3,3")
+
+        areaSvg.append("g").attr("class", "grid")
+            .call(d3.axisLeft(yScale).tickSize(-width).tickFormat(() => ""))
+            .selectAll("line").attr("stroke", "#e5e7eb").attr("stroke-dasharray", "3,3")
+
+        const gradient = areaSvg.append("defs").append("linearGradient")
+            .attr("id", "stakeAreaGradient").attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", height)
+
+        gradient.append("stop").attr("offset", "0%").attr("stop-color", "#10b981").attr("stop-opacity", 0.3)
+        gradient.append("stop").attr("offset", "100%").attr("stop-color", "#10b981").attr("stop-opacity", 0.05)
+
+        areaSvg.append("path").datum(stakeData).attr("fill", "url(#stakeAreaGradient)").attr("d", area)
+        areaSvg.append("path").datum(stakeData).attr("fill", "none").attr("stroke", "#10b981")
+            .attr("stroke-width", 2.5).attr("d", line)
+
+        areaSvg.selectAll(".dot").data(stakeData).enter().append("circle")
+            .attr("cx", (d: StakeDataPoint) => xScale(d.epoch))
+            .attr("cy", (d: StakeDataPoint) => yScale(d.stake))
+            .attr("r", 4).attr("fill", "#10b981").attr("stroke", "#fff").attr("stroke-width", 2)
+            .on("mouseover", function (event: MouseEvent, d: StakeDataPoint) {
+                const tooltip = d3.select("body").append("div").attr("class", "tooltip")
+                    .style("opacity", 0).style("position", "absolute")
+                    .style("background", "rgba(0, 0, 0, 0.8)").style("color", "white")
+                    .style("padding", "8px 12px").style("border-radius", "6px")
+                    .style("font-size", "12px").style("pointer-events", "none").style("z-index", "1000")
+                tooltip.transition().duration(200).style("opacity", 1)
+                tooltip.html(`Epoch: ${d.epoch}<br/>Stake: ${d.stake.toLocaleString(undefined, { maximumFractionDigits: 2 })} SUI`)
+                    .style("left", (event.pageX + 10) + "px").style("top", (event.pageY - 10) + "px")
+            })
+            .on("mouseout", () => d3.selectAll(".tooltip").remove())
+
+        areaSvg.append("g").attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+            .selectAll("text").style("fill", "#6b7280").style("font-size", "12px")
+
+        areaSvg.append("g")
+            .call(d3.axisLeft(yScale).tickFormat((d: number | { valueOf(): number }) => `${(Number(d) / 1000).toFixed(0)}K`))
+            .selectAll("text").style("fill", "#6b7280").style("font-size", "12px")
+
+        areaSvg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - margin.left)
+            .attr("x", 0 - (height / 2)).attr("dy", "1em")
+            .style("text-anchor", "middle").style("fill", "#374151")
+            .style("font-size", "14px").style("font-weight", "600").text("Stake (SUI)")
+
+        areaSvg.append("text").attr("transform", `translate(${width / 2}, ${height + margin.bottom - 10})`)
+            .style("text-anchor", "middle").style("fill", "#374151")
+            .style("font-size", "14px").style("font-weight", "600").text("Epoch")
+    }, [stakeData, activeChartTab])
+
+    // Render Pool Share chart
+    useEffect(() => {
+        if (!poolShareAreaChartRef.current || poolShareData.length === 0) return
+        if (activeChartTab !== "poolShare") return // Only render when tab is active
+
+        d3.select(poolShareAreaChartRef.current).selectAll("*").remove()
+
+        const margin = { top: 20, right: 30, bottom: 50, left: 60 }
+        const width = 800 - margin.left - margin.right
+        const height = 400 - margin.top - margin.bottom
+
+        const areaSvg = d3.select(poolShareAreaChartRef.current)
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g").attr("transform", `translate(${margin.left},${margin.top})`)
+
+        const xScale = d3.scaleLinear()
+            .domain(d3.extent(poolShareData, (d: PoolShareDataPoint) => d.epoch) as [number, number])
+            .range([0, width])
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(poolShareData, (d: PoolShareDataPoint) => d.poolShare) || 1] as [number, number])
+            .nice().range([height, 0])
+
+        const line = d3.line()
+            .x((d: PoolShareDataPoint) => xScale(d.epoch))
+            .y((d: PoolShareDataPoint) => yScale(d.poolShare))
+            .curve(d3.curveMonotoneX)
+
+        const area = d3.area()
+            .x((d: PoolShareDataPoint) => xScale(d.epoch))
+            .y0(height).y1((d: PoolShareDataPoint) => yScale(d.poolShare))
+            .curve(d3.curveMonotoneX)
+
+        areaSvg.append("g").attr("class", "grid").attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale).tickSize(-height).tickFormat(() => ""))
+            .selectAll("line").attr("stroke", "#e5e7eb").attr("stroke-dasharray", "3,3")
+
+        areaSvg.append("g").attr("class", "grid")
+            .call(d3.axisLeft(yScale).tickSize(-width).tickFormat(() => ""))
+            .selectAll("line").attr("stroke", "#e5e7eb").attr("stroke-dasharray", "3,3")
+
+        const gradient = areaSvg.append("defs").append("linearGradient")
+            .attr("id", "poolShareAreaGradient").attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", height)
+
+        gradient.append("stop").attr("offset", "0%").attr("stop-color", "#f59e0b").attr("stop-opacity", 0.3)
+        gradient.append("stop").attr("offset", "100%").attr("stop-color", "#f59e0b").attr("stop-opacity", 0.05)
+
+        areaSvg.append("path").datum(poolShareData).attr("fill", "url(#poolShareAreaGradient)").attr("d", area)
+        areaSvg.append("path").datum(poolShareData).attr("fill", "none").attr("stroke", "#f59e0b")
+            .attr("stroke-width", 2.5).attr("d", line)
+
+        areaSvg.selectAll(".dot").data(poolShareData).enter().append("circle")
+            .attr("cx", (d: PoolShareDataPoint) => xScale(d.epoch))
+            .attr("cy", (d: PoolShareDataPoint) => yScale(d.poolShare))
+            .attr("r", 4).attr("fill", "#f59e0b").attr("stroke", "#fff").attr("stroke-width", 2)
+            .on("mouseover", function (event: MouseEvent, d: PoolShareDataPoint) {
+                const tooltip = d3.select("body").append("div").attr("class", "tooltip")
+                    .style("opacity", 0).style("position", "absolute")
+                    .style("background", "rgba(0, 0, 0, 0.8)").style("color", "white")
+                    .style("padding", "8px 12px").style("border-radius", "6px")
+                    .style("font-size", "12px").style("pointer-events", "none").style("z-index", "1000")
+                tooltip.transition().duration(200).style("opacity", 1)
+                tooltip.html(`Epoch: ${d.epoch}<br/>Pool Share: ${(d.poolShare * 100).toFixed(4)}%`)
+                    .style("left", (event.pageX + 10) + "px").style("top", (event.pageY - 10) + "px")
+            })
+            .on("mouseout", () => d3.selectAll(".tooltip").remove())
+
+        areaSvg.append("g").attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+            .selectAll("text").style("fill", "#6b7280").style("font-size", "12px")
+
+        areaSvg.append("g")
+            .call(d3.axisLeft(yScale).tickFormat((d: number | { valueOf(): number }) => `${(Number(d) * 100).toFixed(2)}%`))
+            .selectAll("text").style("fill", "#6b7280").style("font-size", "12px")
+
+        areaSvg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - margin.left)
+            .attr("x", 0 - (height / 2)).attr("dy", "1em")
+            .style("text-anchor", "middle").style("fill", "#374151")
+            .style("font-size", "14px").style("font-weight", "600").text("Pool Share (%)")
+
+        areaSvg.append("text").attr("transform", `translate(${width / 2}, ${height + margin.bottom - 10})`)
+            .style("text-anchor", "middle").style("fill", "#374151")
+            .style("font-size", "14px").style("font-weight", "600").text("Epoch")
+    }, [poolShareData, activeChartTab])
+
+    // Early returns must come AFTER all hooks
     if (isLoading) {
         return (
             <div className="my-10">
@@ -493,55 +739,91 @@ export default function ApyChartComponent({ address }: ApyChartComponentProps) {
         )
     }
 
-    if (apyData.length === 0) {
-        return (
-            <div className="my-10">
-                <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 text-center text-slate-500 shadow-2xl">
-                    <p className="text-lg font-semibold">APY Chart</p>
-                    <p className="mt-2 text-sm">No APY data available for this validator.</p>
-                </div>
-            </div>
-        )
-    }
-
     return (
         <div className="my-10">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="flex flex-col">
                 <TabsList orientation="horizontal" className="flex-shrink-0 bg-white/60 backdrop-blur rounded-2xl p-2 shadow-lg border border-slate-200/50 mb-6">
                     <TabsTrigger value="apy" label="APY" orientation="horizontal" />
+                    <TabsTrigger value="stake" label="Stake" orientation="horizontal" />
+                    <TabsTrigger value="poolShare" label="Pool Share" orientation="horizontal" />
                 </TabsList>
                 <TabsContent value="apy" className="min-w-0 flex-1">
-                    <div className="space-y-6">
+                    {apyData.length === 0 ? (
+                        <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 text-center text-slate-500 shadow-2xl">
+                            <p className="text-lg font-semibold">APY Chart</p>
+                            <p className="mt-2 text-sm">No APY data available for this validator.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
+                                <div className="mb-6">
+                                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
+                                    <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Over Time</h2>
+                                    <p className="mt-2 text-sm text-slate-500">Historical APY performance across epochs</p>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <svg ref={apyAreaChartRef} className="w-full"></svg>
+                                </div>
+                            </div>
+                            <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
+                                <div className="mb-6">
+                                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
+                                    <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Contour</h2>
+                                    <p className="mt-2 text-sm text-slate-500">Contour visualization showing APY intensity and distribution</p>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <svg ref={apyContourChartRef} className="w-full"></svg>
+                                </div>
+                            </div>
+                            <div className="text-xs text-slate-500 text-center">
+                                Showing {apyData.length} data point{apyData.length !== 1 ? 's' : ''} from epoch {apyData[0]?.epoch} to {apyData[apyData.length - 1]?.epoch}
+                            </div>
+                        </div>
+                    )}
+                </TabsContent>
+                <TabsContent value="stake" className="min-w-0 flex-1">
+                    {stakeData.length === 0 ? (
+                        <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 text-center text-slate-500 shadow-2xl">
+                            <p className="text-lg font-semibold">Stake Chart</p>
+                            <p className="mt-2 text-sm">No stake data available for this validator.</p>
+                        </div>
+                    ) : (
                         <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
                             <div className="mb-6">
-                                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
-                                <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Over Time</h2>
-                                <p className="mt-2 text-sm text-slate-500">
-                                    Historical APY performance across epochs
-                                </p>
+                                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Stake Analytics</p>
+                                <h2 className="mt-2 text-2xl font-bold text-slate-900">Stake Over Time</h2>
+                                <p className="mt-2 text-sm text-slate-500">Historical stake amounts across epochs</p>
                             </div>
                             <div className="overflow-x-auto">
-                                <svg ref={areaChartRef} className="w-full"></svg>
+                                <svg ref={stakeAreaChartRef} className="w-full"></svg>
+                            </div>
+                            <div className="text-xs text-slate-500 text-center mt-4">
+                                Showing {stakeData.length} data point{stakeData.length !== 1 ? 's' : ''} from epoch {stakeData[0]?.epoch} to {stakeData[stakeData.length - 1]?.epoch}
                             </div>
                         </div>
-
+                    )}
+                </TabsContent>
+                <TabsContent value="poolShare" className="min-w-0 flex-1">
+                    {poolShareData.length === 0 ? (
+                        <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 text-center text-slate-500 shadow-2xl">
+                            <p className="text-lg font-semibold">Pool Share Chart</p>
+                            <p className="mt-2 text-sm">No pool share data available for this validator.</p>
+                        </div>
+                    ) : (
                         <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8 shadow-2xl">
                             <div className="mb-6">
-                                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">APY Analytics</p>
-                                <h2 className="mt-2 text-2xl font-bold text-slate-900">APY Contour</h2>
-                                <p className="mt-2 text-sm text-slate-500">
-                                    Contour visualization showing APY intensity and distribution
-                                </p>
+                                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Pool Share Analytics</p>
+                                <h2 className="mt-2 text-2xl font-bold text-slate-900">Pool Share Over Time</h2>
+                                <p className="mt-2 text-sm text-slate-500">Historical pool share percentages across epochs</p>
                             </div>
                             <div className="overflow-x-auto">
-                                <svg ref={contourChartRef} className="w-full"></svg>
+                                <svg ref={poolShareAreaChartRef} className="w-full"></svg>
+                            </div>
+                            <div className="text-xs text-slate-500 text-center mt-4">
+                                Showing {poolShareData.length} data point{poolShareData.length !== 1 ? 's' : ''} from epoch {poolShareData[0]?.epoch} to {poolShareData[poolShareData.length - 1]?.epoch}
                             </div>
                         </div>
-
-                        <div className="text-xs text-slate-500 text-center">
-                            Showing {apyData.length} data point{apyData.length !== 1 ? 's' : ''} from epoch {apyData[0]?.epoch} to {apyData[apyData.length - 1]?.epoch}
-                        </div>
-                    </div>
+                    )}
                 </TabsContent>
             </Tabs>
         </div>

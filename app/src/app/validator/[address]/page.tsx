@@ -4,11 +4,13 @@ import StakingRewardsComponent from "@/app/components/StakingRewardsComponent";
 import TitleComponent from "@/app/components/TitleComponent";
 import ValidatorInfoComponent from "@/app/components/ValidatorInfoComponent";
 import ApyChartComponent from "@/app/components/ApyChartComponent";
+import ProphetPredictionsComponent from "@/app/components/ProphetPredictionsComponent";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/ui/tabs";
 import { HiInformationCircle } from "react-icons/hi2";
 import { HiChartBar } from "react-icons/hi2";
+import { HiSparkles } from "react-icons/hi2";
 
 export default function ValidatorView() {
     const params = useParams();
@@ -32,6 +34,9 @@ export default function ValidatorView() {
                         <TabsTrigger value="analytics" title="Analytics & Charts">
                             <HiChartBar className="w-6 h-6" />
                         </TabsTrigger>
+                        <TabsTrigger value="predictions" title="Predictions">
+                            <HiSparkles className="w-6 h-6" />
+                        </TabsTrigger>
                     </TabsList>
                     <TabsContent value="info" className="min-w-0 flex-1">
                         <ValidatorInfoComponent address={params.address as string} />
@@ -39,6 +44,9 @@ export default function ValidatorView() {
                     </TabsContent>
                     <TabsContent value="analytics" className="min-w-0 flex-1">
                         <ApyChartComponent address={params.address as string} />
+                    </TabsContent>
+                    <TabsContent value="predictions" className="min-w-0 flex-1">
+                        <ProphetPredictionsComponent address={params.address as string} />
                     </TabsContent>
                 </Tabs>
             </div>
