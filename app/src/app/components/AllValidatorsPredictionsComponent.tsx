@@ -16,7 +16,8 @@ import {
     PaginationState,
     SortingState,
     useReactTable,
-    ColumnFiltersState
+    ColumnFiltersState,
+    Row
 } from "@tanstack/react-table"
 import {
     Table,
@@ -30,7 +31,6 @@ import { SlArrowUp, SlArrowDown } from "react-icons/sl"
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { truncateString } from "@/app/helpers/truncateString"
-import { cn } from "@/lib/utils"
 
 const ValidatorImage = ({ imageUrl, name }: { imageUrl: string; name: string }) => {
     const [imageError, setImageError] = useState(false)
@@ -231,7 +231,7 @@ export default function AllValidatorsPredictionsComponent() {
         },
     })
 
-    const handleRowClick = (row: any) => {
+    const handleRowClick = (row: Row<ValidatorPrediction & { name: string; imageUrl: string }>) => {
         router.push(`validator/${row.original.validator_address}`)
     }
 

@@ -52,7 +52,8 @@ export default function AverageApyPerEpochComponent() {
                     throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`)
                 }
 
-                const responseData = await response.json()
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const responseData: any = await response.json()
 
                 // Handle different response formats
                 let processedData: AverageApyPerEpochPoint[] = []
@@ -63,7 +64,7 @@ export default function AverageApyPerEpochComponent() {
                         epoch: Number(item.epoch || item.Epoch || 0),
                         avgAPY: Number(item.avgAPY || item.avg_apy || item.average_apy || 0),
                     }))
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } else if (responseData.data && Array.isArray(responseData.data)) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     processedData = responseData.data.map((item: any) => ({
@@ -127,7 +128,7 @@ export default function AverageApyPerEpochComponent() {
             }
         })
 
-        const maxCount = d3.max(bins, (d) => d.count) || 1
+        const maxCount = d3.max(bins, (d: { x0: number; x1: number; count: number }) => d.count) || 1
 
         const xScale = d3.scaleLinear()
             .domain([minApy, maxApy])
@@ -186,13 +187,13 @@ export default function AverageApyPerEpochComponent() {
             .enter()
             .append("rect")
             .attr("class", "histogram-bar")
-            .attr("x", (d) => xScale(d.x0))
-            .attr("width", (d) => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
-            .attr("y", (d) => yScale(d.count))
-            .attr("height", (d) => height - yScale(d.count))
+            .attr("x", (d: { x0: number; x1: number; count: number }) => xScale(d.x0))
+            .attr("width", (d: { x0: number; x1: number; count: number }) => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+            .attr("y", (d: { x0: number; x1: number; count: number }) => yScale(d.count))
+            .attr("height", (d: { x0: number; x1: number; count: number }) => height - yScale(d.count))
             .attr("fill", "url(#histogramGradient)")
             .attr("rx", 2)
-            .on("mouseover", function (event: MouseEvent, d) {
+            .on("mouseover", function (this: SVGRectElement, event: MouseEvent, d: { x0: number; x1: number; count: number }) {
                 d3.select(this)
                     .attr("opacity", 0.7)
                     .attr("stroke", "#06b6d4")
@@ -219,7 +220,7 @@ export default function AverageApyPerEpochComponent() {
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 10) + "px")
             })
-            .on("mouseout", function () {
+            .on("mouseout", function (this: SVGRectElement) {
                 d3.select(this)
                     .attr("opacity", 1)
                     .attr("stroke", "none")
@@ -343,7 +344,7 @@ export default function AverageApyPerEpochComponent() {
             .attr("height", (d: AverageApyPerEpochPoint) => height - yScale(d.avgAPY))
             .attr("fill", "url(#barGradient)")
             .attr("rx", 4)
-            .on("mouseover", function (event: MouseEvent, d: AverageApyPerEpochPoint) {
+            .on("mouseover", function (this: SVGRectElement, event: MouseEvent, d: AverageApyPerEpochPoint) {
                 d3.select(this)
                     .attr("opacity", 0.7)
                     .attr("stroke", "#6366f1")
@@ -370,7 +371,7 @@ export default function AverageApyPerEpochComponent() {
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 10) + "px")
             })
-            .on("mouseout", function () {
+            .on("mouseout", function (this: SVGRectElement) {
                 d3.select(this)
                     .attr("opacity", 1)
                     .attr("stroke", "none")

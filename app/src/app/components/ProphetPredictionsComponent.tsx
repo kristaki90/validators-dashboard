@@ -132,7 +132,7 @@ export default function ProphetPredictionsComponent({ address }: ProphetPredicti
         // Draw confidence interval if available
         const hasConfidenceInterval = predictionsData.some(d => d.lowerBound !== undefined && d.upperBound !== undefined)
         if (hasConfidenceInterval) {
-            const confidenceArea = d3.area<ProphetPredictionPoint>()
+            const confidenceArea = d3.area()
                 .x((d: ProphetPredictionPoint) => xScale(d.epoch))
                 .y0((d: ProphetPredictionPoint) => yScale(d.lowerBound || d.prediction))
                 .y1((d: ProphetPredictionPoint) => yScale(d.upperBound || d.prediction))
@@ -146,7 +146,7 @@ export default function ProphetPredictionsComponent({ address }: ProphetPredicti
         }
 
         // Create line generator for predictions
-        const line = d3.line<ProphetPredictionPoint>()
+        const line = d3.line()
             .x((d: ProphetPredictionPoint) => xScale(d.epoch))
             .y((d: ProphetPredictionPoint) => yScale(d.prediction))
             .curve(d3.curveMonotoneX)
